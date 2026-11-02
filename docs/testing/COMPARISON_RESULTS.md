@@ -1,5 +1,7 @@
 # Annotation comparison execution results
 
+Historical comparison-phase evidence. Current 0.2.0 results: [DOCUMENT_WORKFLOW_RESULTS.md](DOCUMENT_WORKFLOW_RESULTS.md).
+
 Date: 2026-11-02. Continuation branch: feat/reliable-evidence-reports; base hardening commits f32f5b6 and 6ce9d3e. No merge or release is claimed here.
 
 Implemented standalone same-document annotation comparison, declared source-support changes, document-scoped stable RDF identities and optional actual Tamandua impact planning. Existing snapshot exports and audit input hashes remain unchanged.

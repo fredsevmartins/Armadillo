@@ -1,6 +1,6 @@
 # Implementation and delivery report
 
-Historical baseline evidence for fc8a966. Current hardening results: [HARDENING_RESULTS.md](testing/HARDENING_RESULTS.md).
+Historical baseline evidence for fc8a966. Current results: [DOCUMENT_WORKFLOW_RESULTS.md](testing/DOCUMENT_WORKFLOW_RESULTS.md).
 
 Date: 2026-11-02. Outcome: **READY WITH LIMITATIONS** for the traceability MVP. This is not full parity with the reference or a scientific-validation claim.
 

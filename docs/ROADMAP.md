@@ -1,13 +1,23 @@
 # Roadmap
 
-Delivered 0.1.0 MVP: manual source-evidence audit, reproducible report, RDF export, optional actual Tamandua integration, tests, diagrams, tutorials and CI definition.
+## Implemented, unreleased 0.2.0
 
-Future, not implemented: newer Tamandua compatibility after real testing; span-offset annotation if users need it; larger annotated corpus evaluation; explicit normalization policies; optional extraction only with labeled validation and uncertainty reporting.
+UTF-8 TXT/Markdown preparation, manual span annotation with authors/revisions and latest-edit metadata, source integrity hashes, exact quotation audits, readable reports, snapshot RDF export, same-document comparisons, real optional Tamandua closure/impact plans and explicit checkout connection diagnostics.
 
-No planned broker, database, cloud platform or shared library. Hosted CI execution and release publication remain separate delivery steps.
+Current work is on feat/reliable-evidence-reports. Version 0.2.0 has not been merged/released or published to PyPI. Current execution evidence is in [DOCUMENT_WORKFLOW_RESULTS.md](testing/DOCUMENT_WORKFLOW_RESULTS.md).
 
-## Implemented reliability continuation
+## Before release
 
-Protocol correspondence, bounded process capture, integration preflight, atomic reports, finite-number validation, source locations/context, Markdown, offline bundled schemas and representative regression fixtures are implemented in feat/reliable-evidence-reports. Current evidence: testing/HARDENING_RESULTS.md. Cross-version graph identity/impact reasoning and automatic document evaluation remain future work.
+Review/merge the implementation, inspect hosted CI, verify release artifacts and platform support, then explicitly authorize distribution. See [release checklist](RELEASE_CHECKLIST.md).
 
-Same-document annotation comparison, stable document-scoped RDF identities and actual optional Tamandua impact planning are now implemented. Cross-edited-document identity and semantic evaluation remain future work. See integrations/ANNOTATION_COMPARISON.md.
+## Future, not implemented
+
+- More representative, properly licensed annotated corpora and reviewer evaluation.
+- Optional interfaces that help select/review spans without manually counting codepoints.
+- PDF ingestion with explicit extraction provenance and page mapping.
+- Human-reviewed cross-document/version correspondence.
+- Optional argument extraction only with labeled evaluation and clear uncertainty.
+- Semantic argument assessment/scoring only with justified methodology, independent expected cases and error analysis.
+- Additional engine revisions/platforms only after actual compatibility tests.
+
+No database, broker, Kubernetes deployment or mandatory AI service is needed for the current workflow.

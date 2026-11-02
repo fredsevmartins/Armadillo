@@ -1,43 +1,44 @@
-# Tamandua tutorial
+# End-to-end Tamandua tutorial
 
-Executed against the actual pinned engine. Use existing sibling checkouts where available and preserve local work; no Git worktrees are needed.
+Follow the [connection guide](integrations/TAMANDUA.md) to install both projects and build the pinned engine. Run the [document quick start](QUICKSTART.md) to produce claims.json and annotated.json without editing the source.
 
-## Install both projects
+## 1. Check the connection
 
 ```bash
-git clone https://github.com/fredsevmartins/Armadillo.git
-git clone https://github.com/fredsevmartins/Tamandua.git
-git -C Tamandua checkout 09970fb8985e6065cc24ff5507a8de161c301ee9
-rustup toolchain install 1.90.0 --profile minimal
-cd Tamandua
-cargo +1.90.0 test --locked --workspace -j 4
-cargo +1.90.0 build --locked --bin tamandua -j 4
-cd ../Armadillo
-git switch main
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install '.[tamandua]'
+armadillo doctor --tamandua-repo ../Tamandua
 ```
 
-Use main after this implementation has been merged; before that, use the implementation branch documented in HARDENING_RESULTS.md. No frontend/MCP installation required.
+Expected: CONNECTED, the verified checkout commit, engine "dominox 0.1.0" and actual-rdfs-subclass-inference. The diagnostic is functional evidence, not binary provenance attestation.
 
-## Run and inspect
+## 2. Audit with actual graph reasoning
 
 ```bash
-armadillo audit examples/tamandua_integration/input.json --tamandua ../Tamandua/target/debug/tamandua
+armadillo audit annotated.json --tamandua-repo ../Tamandua --format markdown --output connected-review.md
+```
+
+The report retains source provenance, selected spans and explicit annotation authors. The example yields SOURCE_LINKED with nine assertions and two inferred ArgumentNode memberships. Exact quote presence and graph membership do not establish truth.
+
+## 3. Compare annotation versions
+
+```bash
+armadillo compare claims.json --against annotated.json --tamandua-repo ../Tamandua --format markdown --output connected-impact.md
+armadillo compare claims.json --against annotated.json --tamandua-repo ../Tamandua --output connected-impact.json
+```
+
+Expected: evidence1 added, claim1 gains a declared source-present supporter, four added RDF assertions and one new class-membership inference. JSON includes the native plan, affected entities and explanation paths. Reversing the files removes that evidence and invalidates its classification; no-longer-derivable does not mean false.
+
+## 4. Verify independently
+
+```bash
+python -m unittest discover -s tests -v
 python tests/real_tamandua.py -v
+python scripts/check_contracts.py --tamandua ../Tamandua/target/debug/tamandua
 ```
 
-Expected SOURCE_LINKED, nine assertions, two inferred ArgumentNode memberships, nonempty direct derivations, contract_version 1.1 and rdf_sha256. The actual binary reports engine "dominox 0.1.0"; do not install separate DominoX.
+The real suite checks source-checkout connection, document preparation/authorship, closure, removal/addition/no-op plans, literal roundtrips and repeated analytical equality. It fails if required prerequisites are absent. For alternate test paths set TAMANDUA_BINARY and TAMANDUA_REPOSITORY explicitly; neither variable is required by the application.
 
-For a nonsibling binary use --tamandua PATH; only the real test suite uses TAMANDUA_BINARY as an optional override. Runtime needs no network.
+## Common failures
 
-## Handle errors and test
+Wrong repository/revision or tracked changes: use the verified clean checkout without discarding user work. Missing executable: build the engine. Unsupported version or invalid reply: stop and investigate; do not disable validation. Limit/timeout: reduce input or increase the per-process timeout within its bounds. Need standalone review: omit the Tamandua option. Existing output: choose a new path.
 
-Missing executable: build and pass the correct path. Version mismatch: use pinned commit, do not disable guard. Timeout: reduce input. Invalid RDF/schema: inspect contract and run real suite. Existing report: choose a new name. Standalone recovery: omit --tamandua explicitly.
-
-Real suite tests inference, invalid RDF, Unicode/control literals, deterministic output and full integrated CLI. Standalone mock tests cover timeout, mismatched versions/schema and unexpected exits; mocks do not count as real integration evidence.
-
-## Current reliability contract
-
-Use --timeout SECONDS in (0,300] and --format markdown for readable output. The optional parser checks submitted versus returned RDF assertions, set separation, duplicate triples and provenance coverage. Generated RDF is preflighted at 2 MiB and 20,000 assertions; closure/computation limits can still fail with engine diagnostics. Both process streams are capped while reading (16 MiB stdout, 64 KiB stderr), and the process group is stopped on failure. Only POSIX integration is supported.
+These steps execute the existing CLI, not a mock server or unimplemented endpoint.

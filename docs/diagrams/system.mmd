@@ -1,6 +1,15 @@
 flowchart LR
-  Input[Annotated JSON] --> Core[core.validate and core.audit]
-  Core --> Report[JSON findings and hashes]
-  Core --> RDF[rdf.export_nt]
-  RDF --> Adapter[Optional tamandua.reason]
-  Adapter --> Report
+    Source[UTF-8 TXT or Markdown] --> Prepare[documents.prepare]
+    Prepare --> JSON[Versioned JSON annotations]
+    JSON --> Edit[documents.annotate]
+    Edit --> Audit[core.audit]
+    JSON --> Audit
+    JSON --> Compare[compare.compare]
+    Audit --> Reports[JSON or Markdown]
+    Compare --> Reports
+    Audit --> RDF[rdf.export_nt]
+    RDF --> Adapter[Optional local CLI adapter]
+    Compare --> Adapter
+    Repo[Explicit Tamandua checkout or binary] --> Connection[connection.resolve]
+    Connection --> Adapter
+    Adapter --> Reports

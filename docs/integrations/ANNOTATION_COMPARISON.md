@@ -1,4 +1,4 @@
-# Annotation comparison and Tamandua impact contract 1.0
+# Annotation comparison and Tamandua impact contract 1.1
 
 Compare manual annotations of the exact same document without modifying either input. Standalone comparison requires no external package or executable. Optional Tamandua computes actual graph impact using its existing plan command.
 
@@ -35,10 +35,14 @@ Impact semantics follow Tamandua: new inferences are proposed inferred facts abs
 
 ## JSON contract
 
-comparison_version 1.0 requires document_sha256, baseline_input_sha256, proposed_input_sha256, added_nodes, removed_nodes, modified_nodes, claim_support_changes, baseline_audit, proposed_audit and limitations. Both audits follow report schema 1.1. Optional tamandua_impact contains impact contract_version 1.0, identity_policy, both source RDF hashes and the native analytical plan (without runtime timestamp).
+comparison_version 1.1 requires document_sha256, baseline_input_sha256, proposed_input_sha256, added_nodes, removed_nodes, modified_nodes, claim_support_changes, baseline_audit, proposed_audit and limitations. Both audits follow report schema 1.2. Optional tamandua_impact contains impact contract_version 1.0, identity_policy, both source RDF hashes and the native analytical plan (without runtime timestamp).
 
 The offline comparison schema is bundled in the wheel. Runtime validation additionally checks cross-graph relationships that JSON Schema cannot express. Error behavior matches the audit CLI (exit 1 and JSON stderr; invocation errors use exit 2). Neither source JSON nor the engine's graph is persisted or applied.
 
 ## Verification
 
 Run python -m unittest discover -s tests -v and python tests/real_tamandua.py -v. The real suite covers actual removal, addition, no-op, explanation roots and deterministic analytical comparisons. Protocol-corruption tests are simulated and labeled separately. Current results are in [COMPARISON_RESULTS.md](../testing/COMPARISON_RESULTS.md).
+
+## Document-workflow metadata
+
+Input 1.1 source provenance and per-node author/selected-span metadata are preserved in both audit snapshots. Metadata changes can modify annotation findings without adding/removing RDF facts; author assertions do not add semantic entailment rules. Use --tamandua-repo for the verified independent checkout as an alternative to --tamandua. Current document/connection evidence: [DOCUMENT_WORKFLOW_RESULTS.md](../testing/DOCUMENT_WORKFLOW_RESULTS.md).

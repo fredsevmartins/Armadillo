@@ -1,6 +1,6 @@
 # Reliability and report implementation results
 
-First-phase evidence. Current cumulative functionality and counts are in [COMPARISON_RESULTS.md](COMPARISON_RESULTS.md).
+First-phase evidence. Current functionality and counts are in [DOCUMENT_WORKFLOW_RESULTS.md](DOCUMENT_WORKFLOW_RESULTS.md).
 
 Date: 2026-11-02. Branch: feat/reliable-evidence-reports. Baseline: fc8a966b7f71bb9d5aef6c0dcb5db884549d3b11. This is an unreleased continuation of the evidence-traceability MVP, not automated scientific evaluation.
 

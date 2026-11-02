@@ -1,0 +1,12 @@
+flowchart TD
+    Source[UTF-8 TXT or Markdown] --> Prepare[prepare: preserve source and hash]
+    Prepare --> Snapshot[Input 1.1 snapshot]
+    Snapshot --> Select[Explicit codepoint span and reviewer alias]
+    Select --> Edit[annotate: add, replace or delete]
+    Edit --> Validate[Validate spans, links and source integrity]
+    Validate --> New[New versioned snapshot]
+    New --> Audit[Exact quote audit]
+    Snapshot --> Compare[Compare same-document snapshots]
+    New --> Compare
+    Audit --> Report[JSON or escaped Markdown]
+    Compare --> Report

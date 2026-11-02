@@ -1,74 +1,82 @@
 # Armadillo
 
-Armadillo checks whether manually annotated claims and evidence quote an original document, produces reproducible reports, and optionally sends the argument graph to Tamandua for explainable RDF reasoning. It runs locally without AI credentials, databases or network services.
+Armadillo helps reviewers trace manually annotated claims and evidence back to the exact text of a document. Import a UTF-8 text or Markdown file, annotate source spans, inspect a reproducible report, and optionally use [Tamandua](https://github.com/fredsevmartins/Tamandua) to explain graph changes.
 
-This independent implementation follows the traceability objective of Brain in the Fish. It does not reproduce automated extraction, learned scoring, OWL reasoning or scientific performance claims.
+**Development version: 0.2.0, unreleased.** Current improvements are on `feat/reliable-evidence-reports`; they are not yet merged into `main`. Source presence and declared support do not establish truth, causality or scientific validity.
 
-## Capabilities
+[Documentation](docs/README.md) · [Quick start](docs/QUICKSTART.md) · [Tamandua connection](docs/integrations/TAMANDUA.md) · [CLI reference](docs/CLI.md) · [Validation](docs/testing/DOCUMENT_WORKFLOW_RESULTS.md)
 
-Strict versioned JSON, exact Unicode substring matching, validated evidence links, missing-quote and unsupported-claim findings, SHA-256 provenance, deterministic JSON/N-Triples and optional real Tamandua CLI integration. New reports are published atomically without overwriting existing files; write failures remove unpublished temporary files.
+## What works
 
-SOURCE_LINKED means all supplied quotes occur in the document and each claim has a declared evidence supporter whose quote occurs. It does **not** establish truth, entailment, source independence, quality or scientific validity. Other valid inputs produce REVIEW_REQUIRED.
+- Import .txt and .md without normalizing Unicode, markup or line endings.
+- Add, explicitly replace or delete annotations using source offsets and a reviewer alias.
+- Preserve source hashes, selected spans, annotation authors/revisions and the most recent edit.
+- Audit exact quote presence and declared evidence links; export JSON, Markdown and N-Triples.
+- Compare annotations of the same document with stable document-scoped graph identities.
+- Connect explicitly to the independent Tamandua checkout for real closure, impact plans and explanations.
+- Refuse output collisions and publish complete files atomically.
+- Export bundled JSON Schemas offline.
 
-## Installation and quick start
+## Install from this development checkout
 
-Python 3.11+; no runtime dependencies. From the repository root:
+Python 3.11+ is required. Standalone auditing has no third-party runtime dependencies.
 
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install .
-armadillo audit examples/tamandua_integration/input.json
-armadillo audit examples/tamandua_integration/input.json --format markdown
-armadillo export examples/tamandua_integration/input.json
+armadillo --version
 ```
 
-Expected audit: SOURCE_LINKED, two nodes, one claim, zero missing quotes. Use --output NEW_FILE to retain a report. Never redirect stdout over an input.
+For a fresh clone of the current development work, see [installation](docs/INSTALLATION.md).
 
-## Architecture and Tamandua
+## Document to review
 
-JSON → validation → exact-quote audit → report. Optional branch: N-Triples → Tamandua CLI → analytical closure/provenance. Integration never changes the audit verdict.
+Run from the repository root. Choose new output filenames on every run.
+
+```bash
+armadillo prepare examples/document_workflow/source.txt --document-id synthetic-sample --output prepared.json
+armadillo annotate prepared.json --node-id claim1 --kind claim --start 0 --end 42 --author reviewer-a --output claims.json
+armadillo annotate claims.json --node-id evidence1 --kind evidence --start 43 --end 79 --supports claim1 --author reviewer-b --output annotated.json
+armadillo audit annotated.json --format markdown --output review.md
+armadillo compare claims.json --against annotated.json --format markdown
+```
+
+Expected final audit: SOURCE_LINKED with two source-present quotations. The comparison identifies the new evidence and gained declared support. Positions count Unicode codepoints, with zero-based [start,end) ranges; the text is not converted to byte offsets or normalized.
+
+## Connect Tamandua
+
+Build the separately maintained [compatible checkout](docs/integrations/TAMANDUA.md), then:
 
 ```bash
 python -m pip install '.[tamandua]'
-armadillo audit examples/tamandua_integration/input.json --tamandua ../Tamandua/target/debug/tamandua
+armadillo doctor --tamandua-repo ../Tamandua
+armadillo audit annotated.json --tamandua-repo ../Tamandua --format markdown
+armadillo compare claims.json --against annotated.json --tamandua-repo ../Tamandua --format markdown
 ```
 
-Build the pinned compatible binary using the [Tamandua tutorial](docs/TAMANDUA_TUTORIAL.md). No HTTP server is needed. See [architecture](docs/architecture/INTEGRATION_ARCHITECTURE.md), [contract](docs/integrations/INTERFACE_CONTRACT.md) and [diagrams](docs/diagrams/README.md).
+The diagnostic checks the selected repository, pinned source revision and an actual RDFS subclass inference. No HTTP server, API key, database or separate DominoX project is required. Neither project installs or imports the other's application code.
 
-## Reports and offline schemas
-
-Report schema 1.1 includes original quotes, up to ten overlapping match locations with bounded context, zero-based Unicode codepoint ranges [start,end), and one-based lines/columns. Occurrences beyond ten are explicitly marked truncated. Use `--format markdown` for a reviewable report and `--output NEW_FILE` to retain it. No claim/evidence labels or source text are transformed.
-
-`armadillo schema input`, `armadillo schema report` and `armadillo schema adapter` export bundled schemas offline. Input schema remains 1.0; the optional adapter contract is now 1.1. See [hardening validation](docs/testing/HARDENING_RESULTS.md) for current evidence.
-
-## Tests and documentation
+## Verify
 
 ```bash
-python -m pip install '.[tamandua]' ruff==0.14.3
+python -m pip install '.[tamandua]' ruff==0.14.3 jsonschema==4.26.0
 python -m unittest discover -s tests -v
-python scripts/check_docs.py
 python tests/real_tamandua.py -v
+python scripts/check_docs.py
+python scripts/check_contracts.py --tamandua ../Tamandua/target/debug/tamandua
 ```
 
-The last suite requires the actual compatible binary and fails if missing. Mock protocol tests are separate and do not prove real integration. See [test results](docs/testing/TEST_RESULTS.md), [installation](docs/INSTALLATION.md), [user tutorial](docs/TUTORIAL.md), [developer guide](docs/DEVELOPER_GUIDE.md), [features](docs/FEATURES.md) and [roadmap](docs/ROADMAP.md).
+The real suite requires the pinned source checkout and executable; missing integration prerequisites fail explicitly. Local results are not proof of hosted CI execution. See [current results](docs/testing/DOCUMENT_WORKFLOW_RESULTS.md).
 
-## Limitations
+## Boundaries
 
-Manual UTF-8 JSON only, bounded to 1 MiB and 1,000 nodes. No PDF reader, LLM extraction, grading, web fact checking, HTTP API or UI. Matching performs no whitespace/Unicode normalization. Support relationships are user assertions, not semantic proof. Tamandua implements a bounded RDFS subset, not OWL or scientific causation. Linux/Python 3.12 is locally verified; other declared CI versions await execution.
+Armadillo currently handles manual evidence traceability. It does not extract arguments automatically, read PDFs, score document quality, fact-check external sources or validate scientific conclusions. Contradictory user-labeled evidence can still be source-present. Comparisons require identical document text. Annotation authors are caller-provided labels, not authenticated identities; preserve prior JSON snapshots for history.
+
+Linux/Python 3.12 is locally verified. Tamandua process integration requires POSIX; other standalone platforms remain unverified. Inputs are limited to 1 MiB including serialized metadata and 1,000 nodes. See [limits](docs/LIMITATIONS.md) and [security](SECURITY.md).
 
 ## Open source
 
-MIT © 2026 Armadillo contributors; [license](LICENSE), [contributing](CONTRIBUTING.md), [conduct](CODE_OF_CONDUCT.md), [security](SECURITY.md).
+Original implementation: MIT © 2026 Armadillo contributors. [License](LICENSE) · [Contributing](CONTRIBUTING.md) · [Conduct](CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md).
 
-Technical inspiration: [Brain in the Fish](https://github.com/fabio-rovai/brain-in-the-fish), MIT © 2026 Fabio Rovai. No reference source, datasets, documentation or assets were copied. [Tamandua](https://github.com/fredsevmartins/Tamandua), MIT © 2026 Tamandua contributors, is separately installed and optional. These are independent personal projects, not Kinetix products.
-
-## Compare annotations and trace graph impact
-
-```bash
-armadillo compare examples/tamandua_integration/before.json --against examples/tamandua_integration/after.json --format markdown
-# Optional: install .[tamandua] and build the compatible engine first
-armadillo compare examples/tamandua_integration/before.json --against examples/tamandua_integration/after.json --tamandua ../Tamandua/target/debug/tamandua --format markdown
-```
-
-Compare node additions/removals/modifications and lost/gained declared source supporters without changing inputs. Optional Tamandua impact uses stable identities within the same unchanged document and verifies the proposed graph and impact sets. Changed document text is explicitly rejected. This does not assess scientific truth or causal evidence. See the [comparison tutorial and contract](docs/integrations/ANNOTATION_COMPARISON.md) and [current test results](docs/testing/COMPARISON_RESULTS.md). Offline schema: `armadillo schema comparison`.
+Technical inspiration: [Brain in the Fish](https://github.com/fabio-rovai/brain-in-the-fish), MIT © 2026 Fabio Rovai. No reference source, datasets, documentation or assets were copied. Tamandua is independently maintained and MIT-licensed. These are personal open-source projects, not Kinetix products.

@@ -1,15 +1,48 @@
 # Developer guide
 
-src/armadillo/core.py: validation, source presence and hashes. rdf.py: N-Triples serialization. tamandua.py: optional trusted subprocess adapter. cli.py: installed command. No HTTP server/native shared library.
+## Layout
 
-Install editable; run python -m unittest discover -s tests -v, python scripts/check_docs.py, ruff check src tests scripts and ruff format --check src tests scripts. Install Ruff with python -m pip install ruff==0.14.3. Build with python -m pip wheel --no-deps . --wheel-dir dist.
+src/armadillo contains documents (preparation/editing), core (validation/audit), rdf (serialization), compare (annotation/graph impact), connection (checkout diagnostic), tamandua/process (validated optional exchange/bounded capture), output (atomic publication/Markdown), contracts and cli.
 
-Real integration: python tests/real_tamandua.py -v requires actual pinned engine and fails rather than skipping missing setup. test_core.py covers invariants, test_cli.py subprocess workflows, test_adapter.py mock-only protocol failures. scripts/benchmark.py measures synthetic 500-node auditing, not scientific accuracy.
+schemas contains public JSON Schemas; identical package resources are shipped in src/armadillo/schemas. tests verifies their consistency. examples contains original synthetic workflows. docs separates current instructions from historical audits/results.
 
-New validation must preserve immutability, deterministic hashes and explicit errors. New engine support requires actual contract tests. Matching/serialization changes require schema/contract decisions. No randomness is used.
+## Environment and checks
 
-Each cloud task is already isolated: use existing checkouts; do not create worktrees unless explicitly requested. Keep public docs in English and synthetic fixtures free of private data.
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e '.[tamandua]' ruff==0.14.3 jsonschema==4.26.0
+python -m unittest discover -s tests -v
+python tests/real_tamandua.py -v
+python scripts/check_contracts.py --tamandua ../Tamandua/target/debug/tamandua
+ruff check src tests scripts
+ruff format --check src tests scripts
+python scripts/check_docs.py
+```
 
-## Reliability implementation
+The full standalone suite includes optional-parser protocol tests; install the extra for development even though the standalone application does not require it. The real suite requires the compatible source checkout/binary; absence must fail rather than silently skip. Override test locations with TAMANDUA_BINARY and TAMANDUA_REPOSITORY only when needed.
 
-Install `.[tamandua]` for the protocol and real suites. process.py bounds stdout/stderr and reaps the POSIX process group; output.py atomically creates new reports; contracts.py loads offline schemas. test_reliability.py exercises protocol invariants, I/O failure cleanup, resource boundaries, exact locations, escaping and actual process failures. test_reports.py covers CLI report/schema exports and representative fixtures. Run the separate real suite for actual engine correspondence and exact Unicode literal roundtrips.
+The managed setup script uses /workspace paths and retained tool directories. Each cloud task is already isolated: use existing checkouts; do not create worktrees unless explicitly requested.
+
+## Extension rules
+
+Preserve original input objects/files, deterministic hashes and explicit failure behavior. Never automatically normalize source text, delete user support links, change IDs across edited documents, infer a reviewer identity or downgrade requested integration failures. Metadata is caller-supplied, not authenticated.
+
+New input/report fields must have explicit contract decisions, bundled schema updates and representative tests. New engine revisions require actual tests and a deliberate compatibility-pin update. Do not use mocks as proof of working integration or scientific accuracy.
+
+## Packaging
+
+Build with python -m pip wheel --no-deps . --wheel-dir NEW_ARTIFACT_DIRECTORY. Test the wheel in a clean virtual environment outside the checkout; verify version, bundled schemas and standalone document workflow. Install its optional extra and test the actual reasoner separately. CI defines these activities and artifact uploads, but hosted execution needs independent evidence.
+
+Use [release checklist](RELEASE_CHECKLIST.md), [security policy](../SECURITY.md) and [contributing](../CONTRIBUTING.md).
+
+## Diagram syntax
+
+Development-only optional tools are installed outside the project:
+
+```bash
+npm install --prefix /tmp/armadillo-doc-tools --ignore-scripts --no-audit --no-fund mermaid@11.4.1 jsdom@26.1.0
+node scripts/check_mermaid.mjs /tmp/armadillo-doc-tools/node_modules
+```
+
+This checks actual Mermaid syntax with a DOM for sanitization. It does not prove browser rendering or layout quality. No JavaScript packages are required by the Python application. `python scripts/check_quickstart.py` executes the documented CLI workflow in a temporary output directory; add --tamandua-repo PATH for the actual repository connection.

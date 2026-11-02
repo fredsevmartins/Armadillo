@@ -13,3 +13,12 @@ Original manual source-evidence auditing, deterministic provenance, RDF export a
 - Bundle offline input/report/adapter schemas, representative fixtures and regression tests; define clean wheel/artifact CI checks.
 
 - Add same-document compare command, declared source-support changes, optional real Tamandua impact plans, stable document-scoped IDs and comparison schema 1.0. Existing snapshot export identity is retained.
+
+## 0.2.0 — unreleased
+
+- Import exact UTF-8 TXT/Markdown with source provenance and integrity hashes.
+- Add/replace/delete manual source-span annotations with explicit author/revision labels and latest-edit metadata.
+- Preserve selected occurrence spans, validate stale spans and retain legacy input 1.0 support.
+- Add verified Tamandua checkout selection and actual functional connection diagnostic.
+- Consolidate professional documentation, quick start, CLI/API reference, dependency inventory and release checklist.
+- Package contracts: input 1.0/1.1, report 1.2, comparison 1.1; closure adapter remains 1.1. No release or merge is implied by this entry.

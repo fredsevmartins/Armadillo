@@ -1,39 +1,47 @@
-# Interface contract 1.1
+# RDF closure adapter contract 1.1
 
-Interface: armadillo-tamandua-cli. Input schema_version "1.0"; report schema_version "1.1".
+Interface: armadillo-tamandua-cli. This contract covers optional local N-Triples exchange; source/audit metadata versioning is described separately below. It is not an HTTP API.
 
-## Input
+## Source input and validation
 
-Exactly schema_version, document, nodes. document is a nonblank string. nodes contains up to 1,000 objects, each with exactly id, kind, quote, supports. IDs match [A-Za-z][A-Za-z0-9_-]{0,63}, unique. kind is claim/evidence, quote nonblank, supports a unique array of existing claim IDs. Claims have empty supports. Empty graph is allowed and requires review.
+Input 1.0 requires exactly schema_version, document and nodes. Input 1.1 additionally allows provenance, last_edit and per-node annotation metadata. Both require nonblank UTF-8 document text and at most 1,000 nodes. Nodes require unique IDs matching [A-Za-z][A-Za-z0-9_-]{0,63}, kind claim/evidence, nonblank quote and unique supports references to existing claims. Claims cannot have support targets.
 
-Reject unknown/duplicate keys, invalid Unicode, non-finite JSON constants, wrong types, dangling links and unknown version. File/canonical input limit 1 MiB. JSON fields never provide paths or commands. See [JSON Schema](../../schemas/input.schema.json); cross-node uniqueness/references and byte limits are extra runtime checks.
+Input 1.1 author/revision labels are explicit user assertions. Optional paired selected offsets must be integers and must exactly identify the quote in the document. Imported source provenance includes name, txt/md format and SHA-256 matching the embedded UTF-8 source. last_edit records author, action and node ID, not a signed/full history.
 
-## RDF and invocation
+Files and canonical serialized input are capped at 1 MiB. Duplicate/unknown JSON fields, non-finite numeric values, malformed Unicode, invalid spans, dangling references and unsupported versions fail. JSON Schema is bundled; runtime validation additionally checks cross-field/link/hash constraints. Source metadata is never interpreted as a file path or executable.
 
-Standard UTF-8 N-Triples. Vocabulary https://w3id.org/armadillo-evidence/ is an identifier, not a runtime URL dependency or claim of registered ownership. Subjects: urn:sha256:CANONICAL_INPUT_HASH:NODE_ID. Claim/Evidence subclasses of ArgumentNode; rdf:type, quote, declaredSupports and SourcePresentNode encode assertions and findings separately. Quotes are escaped, original content preserved.
+## RDF representation
 
-EXECUTABLE --version must return exactly "dominox 0.1.0" (actual binary) or "tamandua 0.1.0". EXECUTABLE reason PRIVATE_ABSOLUTE_GRAPH.nt returns a JSON envelope with analytical exactly asserted, inferred, derivations. Triples contain nonempty subject/predicate/object strings in canonical engine spelling. Derivations require known conclusion and nonempty alternatives with rule and two known premises. Schema/reference membership is validated; the operator-selected engine is trusted for RDF semantics.
+UTF-8 N-Triples, vocabulary https://w3id.org/armadillo-evidence/. This URI is an identifier, not a runtime destination or a claim of registered/resolvable ownership.
 
-## Report
+Claim/Evidence are subclasses of ArgumentNode. Each node has rdf:type and a quote literal; declaredSupports records user assertions and SourcePresentNode records exact presence findings. Author metadata is retained in audit JSON rather than assigned unsupported semantic meaning in RDF.
 
-schema_version, software_version, input_sha256, document_sha256, status, counts, unsupported_claims, findings, limitations. SHA-256 covers UTF-8 document and sorted-key compact JSON input, respectively. Arrays remain ordered; no Unicode normalization or claim of RFC 8785 canonicalization.
+Default snapshot subjects are urn:sha256:INPUT_HASH:NODE_ID. Same-document comparison explicitly uses document-hash subjects as described in the [impact contract](ANNOTATION_COMPARISON.md). No source text, quote or user ID is silently rewritten.
 
-SOURCE_LINKED requires nonempty nodes, all quotes present and every claim with source-present declared evidence. REVIEW_REQUIRED otherwise. Evidence-only graphs can be source-linked. Reused quotes/support labels do not prove independent evidence or truth.
+## Process and response
 
-Optional tamandua object: contract_version, engine, rdf_sha256, analytical. Engine execution_timestamp_unix_seconds omitted. Inference adds class memberships, not semantic evidence verification.
+Version must be exactly "dominox 0.1.0" (actual audited package spelling) or "tamandua 0.1.0". Invoke reason PRIVATE_GRAPH.nt using an explicit trusted executable, without a shell or network.
 
-## Errors and compatibility
+The analytical envelope requires asserted, inferred and derivations arrays. Triples have subject/predicate/object strings in the engine's RDF spelling. Submitted and returned parsed assertion sets must match. Reject duplicate triples, asserted/inferred overlap, unknown rule names, invalid provenance references and missing inference provenance. Literal comparison uses the pinned RDFLib parser's RDF term semantics; exact source presence itself is never normalized.
 
-Exit 1, stderr JSON {error:{code:"AUDIT_FAILED",message:"..."}}. Argparse invocation errors use exit 2. Requested integration failure returns no success report; omit --tamandua for standalone. Output creation is exclusive.
+Derived facts remain engine conclusions under its limited RDFS profile. The adapter does not independently prove recursive scientific/evidentiary validity.
 
-Python adapter timeout defaults to 30 seconds per process, configurable in (0,300]. Capture is bounded during reading: 16 MiB stdout, 64 KiB stderr. Overflow or timeout stops the POSIX process group. This is not a sandbox for a malicious executable. Executable is trusted operator configuration. No automatic migrations, downgrade, normalization or retries. Unknown engine versions/closure fields fail until explicitly verified.
+Output wrapper: contract_version 1.1, engine, rdf_sha256 and analytical. Runtime timestamps are omitted. Unknown response fields/versions are rejected where the strict closure contract applies.
 
-## 1.1 correspondence and source locations
+## Limits and failures
 
-Optional installation requires the pinned RDFLib parser and pyparsing. Parsing is explicitly N-Triples with local data only; no remote JSON-LD/RDF sources are loaded. Parsed assertion sets must equal submitted assertions. Duplicates, assertion/inference overlap, absent inference provenance, unknown rules and invalid references fail. RDF comparison uses parser term equality (including RDFLib typed-literal normalization); the supplied source/annotation JSON and exact-quote findings are never normalized. Blank-node labels are held stable within the submitted exchange, not canonicalized across documents.
+Preflight rejects RDF over 2 MiB or 20,000 assertions before process launch. JSON input validity does not guarantee generated RDF or closure acceptance. The engine's own closure/work/provenance limits still apply.
 
-Preflight rejects RDF above 2 MiB or 20,000 assertions before launching the executable. Input JSON acceptance does not guarantee generated-RDF/closure acceptance; reduce links or run standalone. Computation/closure limits may still fail. Bounded safe stderr details are retained.
+Capture is bounded during reading: 16 MiB stdout, 64 KiB stderr. Timeout defaults to 30 seconds per process, configurable in (0,300]. Failure/overflow cleanup stops the POSIX process group and removes temporary files. Bounded safe engine diagnostics are retained. The trusted executable still has caller privileges; this is not a malicious-program sandbox or a hard engine-memory cap.
 
-Each finding includes the quote, occurrences (at most ten), and occurrences_truncated. Positions are Unicode codepoints, zero-based [start,end); line/column are one-based, with LF defining line breaks. Overlapping matches are included; context is at most 160 characters per occurrence. No locations are produced for missing quotes. Markdown escapes raw content, including controls/HTML.
+Requested integration errors return no successful report; explicitly omit the option for standalone. CLI failures use stderr JSON and exit 1; invalid invocation can use exit 2.
 
-Output publication uses a private same-directory temporary file, flush/fsync and an exclusive atomic hard link; collisions never replace data. Unpublished temporary files are removed on handled failures. This requires filesystem hard-link support and is not a guarantee against power-loss/directory durability or an uncatchable process termination.
+## Audit output and publication
+
+Current audit report is schema 1.2: version/software/hash metadata, status/counts, findings, unsupported_claims and limitations; optional source/edit/author metadata is preserved. Each finding includes quote, quote_found, at most ten overlapping occurrences, codepoint ranges [start,end), one-based LF lines/columns, context up to 160 codepoints and an explicit truncation flag.
+
+SOURCE_LINKED means nonempty annotations, all quotations present and source-present declared evidence for each claim. REVIEW_REQUIRED otherwise. Neither label verifies truth or causal/semantic support.
+
+Report hashes use SHA-256 over exact UTF-8 source and sorted-key compact JSON input. Array order remains significant. No claim of RFC 8785/RDF-isomorphism canonicalization is made.
+
+New outputs use private same-directory temporary files, flush/fsync and exclusive atomic hard-link creation. Handled failures remove unpublished temporary files. Existing destinations are never replaced. Hard-link filesystem support is required; power-loss directory durability and uncatchable-process cleanup are outside this guarantee.

@@ -1,6 +1,6 @@
 # Executed test results
 
-Historical baseline evidence for fc8a966. Current hardening results: [HARDENING_RESULTS.md](HARDENING_RESULTS.md).
+Historical baseline evidence for fc8a966. Current results: [DOCUMENT_WORKFLOW_RESULTS.md](DOCUMENT_WORKFLOW_RESULTS.md).
 
 Date: 2026-11-02. Linux 6.18.57 x86_64, glibc 2.41, Python 3.12.14; Tamandua commit 09970fb8985e6065cc24ff5507a8de161c301ee9, Rust 1.90.0.
 

@@ -1,23 +1,71 @@
-# Editable diagrams
+# Editable architecture and workflow diagrams
 
-Implemented MVP, not future proposals. Mermaid source files are editable. Rendering is not independently validated by a Mermaid CLI.
+All diagrams describe implemented behavior. No scientific inference, remote service or future component is implied. Each source is editable Mermaid; all nine sources passed Mermaid syntax parsing as recorded in the latest test results. Browser rendering/layout is not claimed.
 
-## system
+## System
 
-[Source](system.mmd)
+[Editable source](system.mmd)
 
 ```mermaid
 flowchart LR
-  Input[Annotated JSON] --> Core[core.validate and core.audit]
-  Core --> Report[JSON findings and hashes]
-  Core --> RDF[rdf.export_nt]
-  RDF --> Adapter[Optional tamandua.reason]
-  Adapter --> Report
+    Source[UTF-8 TXT or Markdown] --> Prepare[documents.prepare]
+    Prepare --> JSON[Versioned JSON annotations]
+    JSON --> Edit[documents.annotate]
+    Edit --> Audit[core.audit]
+    JSON --> Audit
+    JSON --> Compare[compare.compare]
+    Audit --> Reports[JSON or Markdown]
+    Compare --> Reports
+    Audit --> RDF[rdf.export_nt]
+    RDF --> Adapter[Optional local CLI adapter]
+    Compare --> Adapter
+    Repo[Explicit Tamandua checkout or binary] --> Connection[connection.resolve]
+    Connection --> Adapter
+    Adapter --> Reports
 ```
 
-## integration
+## Documents
 
-[Source](integration.mmd)
+[Editable source](documents.mmd)
+
+```mermaid
+flowchart TD
+    Source[UTF-8 TXT or Markdown] --> Prepare[prepare: preserve source and hash]
+    Prepare --> Snapshot[Input 1.1 snapshot]
+    Snapshot --> Select[Explicit codepoint span and reviewer alias]
+    Select --> Edit[annotate: add, replace or delete]
+    Edit --> Validate[Validate spans, links and source integrity]
+    Validate --> New[New versioned snapshot]
+    New --> Audit[Exact quote audit]
+    Snapshot --> Compare[Compare same-document snapshots]
+    New --> Compare
+    Audit --> Report[JSON or escaped Markdown]
+    Compare --> Report
+```
+
+## Connection
+
+[Editable source](connection.mmd)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Armadillo
+    participant Git as Local Git metadata
+    participant Tamandua as Independent Tamandua CLI
+    User->>Armadillo: doctor with explicit checkout
+    Armadillo->>Git: Root, origin, revision and tracked changes
+    Git-->>Armadillo: Verified clean pinned checkout
+    Armadillo->>Armadillo: Resolve release or debug executable
+    Armadillo->>Tamandua: Version and local subclass check
+    Tamandua-->>Armadillo: Closure and provenance
+    Armadillo->>Armadillo: Verify expected inference
+    Armadillo-->>User: CONNECTED diagnostic
+```
+
+## Integration
+
+[Editable source](integration.mmd)
 
 ```mermaid
 sequenceDiagram
@@ -34,9 +82,9 @@ sequenceDiagram
   A-->>U: Analytical payload
 ```
 
-## data-flow
+## Data Flow
 
-[Source](data-flow.mmd)
+[Editable source](data-flow.mmd)
 
 ```mermaid
 flowchart TD
@@ -50,9 +98,9 @@ flowchart TD
   T --> R
 ```
 
-## workflow
+## Workflow
 
-[Source](workflow.mmd)
+[Editable source](workflow.mmd)
 
 ```mermaid
 flowchart TD
@@ -65,9 +113,9 @@ flowchart TD
   R --> O[Create new report]
 ```
 
-## errors
+## Errors
 
-[Source](errors.mmd)
+[Editable source](errors.mmd)
 
 ```mermaid
 flowchart TD
@@ -82,9 +130,9 @@ flowchart TD
   E --> F[Correct input or omit integration and rerun]
 ```
 
-## testing
+## Testing
 
-[Source](testing.mmd)
+[Editable source](testing.mmd)
 
 ```mermaid
 flowchart LR
@@ -97,6 +145,26 @@ flowchart LR
   D[Documentation checks] --> Docs[Local links and diagram sources]
 ```
 
-## Annotation comparison
+## Comparison
 
-[Editable source](comparison.mmd) shows standalone diffs and the optional actual Tamandua impact exchange. It is implemented; no scientific-entailment claim is implied.
+[Editable source](comparison.mmd)
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant A as Armadillo compare
+  participant T as Tamandua CLI
+  U->>A: Baseline and proposed annotations
+  A->>A: Validate same document and audit both
+  A->>A: Compare node and declared support changes
+  opt Explicit Tamandua integration
+    A->>A: Export document-scoped stable identities
+    A->>T: Version and reason baseline
+    A->>T: Version and reason proposed
+    A->>A: Build canonical add/remove delta
+    A->>T: Plan baseline with changes
+    T-->>A: Proposed graph, impact and explanations
+    A->>A: Validate sets, counts, hashes and roots
+  end
+  A-->>U: Deterministic JSON or Markdown
+```

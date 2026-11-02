@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant User
+    participant Armadillo
+    participant Git as Local Git metadata
+    participant Tamandua as Independent Tamandua CLI
+    User->>Armadillo: doctor with explicit checkout
+    Armadillo->>Git: Root, origin, revision and tracked changes
+    Git-->>Armadillo: Verified clean pinned checkout
+    Armadillo->>Armadillo: Resolve release or debug executable
+    Armadillo->>Tamandua: Version and local subclass check
+    Tamandua-->>Armadillo: Closure and provenance
+    Armadillo->>Armadillo: Verify expected inference
+    Armadillo-->>User: CONNECTED diagnostic
