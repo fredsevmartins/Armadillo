@@ -1,0 +1,9 @@
+flowchart TD
+  J[Bounded UTF-8 JSON] --> V[Schema and reference validation]
+  V --> Q[Exact quote presence]
+  Q --> S[Source-present supporters]
+  S --> R[Report and hashes]
+  V --> N[N-Triples assertions]
+  Q --> N
+  N --> T[Optional Tamandua RDFS closure]
+  T --> R

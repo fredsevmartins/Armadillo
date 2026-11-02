@@ -1,0 +1,8 @@
+flowchart TD
+  I[Install Python package] --> P[Prepare document and manual annotations]
+  P --> A[Run audit]
+  A --> D{Enable Tamandua?}
+  D -->|No| R[Inspect findings]
+  D -->|Yes| T[Run pinned trusted CLI]
+  T --> R
+  R --> O[Create new report]

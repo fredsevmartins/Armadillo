@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant U as Operator
+  participant A as Armadillo adapter
+  participant T as Tamandua CLI
+  U->>A: Explicit executable and N-Triples
+  A->>T: --version
+  T-->>A: dominox 0.1.0
+  A->>A: Private temporary graph.nt
+  A->>T: reason graph.nt
+  T-->>A: JSON closure and derivations
+  A->>A: Validate, drop timestamp, clean temporary file
+  A-->>U: Analytical payload

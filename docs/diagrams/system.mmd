@@ -1,0 +1,6 @@
+flowchart LR
+  Input[Annotated JSON] --> Core[core.validate and core.audit]
+  Core --> Report[JSON findings and hashes]
+  Core --> RDF[rdf.export_nt]
+  RDF --> Adapter[Optional tamandua.reason]
+  Adapter --> Report

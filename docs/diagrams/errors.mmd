@@ -1,0 +1,10 @@
+flowchart TD
+  I[Input] --> V{Valid schema and links?}
+  V -->|No| E[stderr JSON and exit 1]
+  V -->|Yes| A[Compute audit]
+  A --> D{Engine requested?}
+  D -->|No| R[Return findings]
+  D -->|Yes| T{Version and closure valid?}
+  T -->|No| E
+  T -->|Yes| R
+  E --> F[Correct input or omit integration and rerun]

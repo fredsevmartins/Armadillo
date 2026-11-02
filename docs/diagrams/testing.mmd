@@ -1,0 +1,8 @@
+flowchart LR
+  U[Core unit cases] --> C[Validation audit and RDF]
+  M[Mock protocol failures] --> A[Optional adapter]
+  E[CLI subprocess tests] --> C
+  E --> A
+  R[Separate real suite] --> T[Pinned Tamandua binary]
+  T --> A
+  D[Documentation checks] --> Docs[Local links and diagram sources]
