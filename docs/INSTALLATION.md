@@ -4,10 +4,10 @@
 
 Python 3.11+ with venv and pip. Linux x86_64/Python 3.12 is locally verified. Standalone runtime has no third-party dependencies. Optional Tamandua integration requires POSIX, Git for checkout verification, its separate Rust build and the pinned RDF parser extra.
 
-Version 0.2.0 is unreleased and has not been published to PyPI. The current code is on the implementation branch:
+Version 0.2.0 is unreleased and has not been published to PyPI. The current source is available from main:
 
 ```bash
-git clone --branch feat/reliable-evidence-reports https://github.com/fredsevmartins/Armadillo.git
+git clone https://github.com/fredsevmartins/Armadillo.git
 cd Armadillo
 python3 -m venv .venv
 . .venv/bin/activate

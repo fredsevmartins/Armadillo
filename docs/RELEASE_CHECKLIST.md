@@ -1,6 +1,6 @@
 # Release checklist
 
-0.2.0 is currently an unreleased implementation branch. This checklist does not authorize a merge or publication.
+0.2.0 is available as source on main. A packaged release remains unpublished; this checklist does not authorize a release or package publication.
 
 ## Required evidence
 

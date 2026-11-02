@@ -1,8 +1,23 @@
 # Armadillo
 
-Armadillo helps reviewers trace manually annotated claims and evidence back to the exact text of a document. Import a UTF-8 text or Markdown file, annotate source spans, inspect a reproducible report, and optionally use [Tamandua](https://github.com/fredsevmartins/Tamandua) to explain graph changes.
+Armadillo helps researchers and reviewers trace document claims back to the exact passages presented as evidence, preserve that review trail and understand what changes when annotations are revised.
 
-**Development version: 0.2.0, unreleased.** Current improvements are on `feat/reliable-evidence-reports`; they are not yet merged into `main`. Source presence and declared support do not establish truth, causality or scientific validity.
+## The problem
+
+Evidence reviews become difficult to audit when claims, quotations and reviewer decisions are scattered across documents and notes. A reader may see a conclusion without knowing which passage was cited, who annotated it or whether its supporting evidence changed during revision. Repeating that review becomes time-consuming and inconsistent.
+
+## How Armadillo addresses it
+
+1. **Preserve the source.** Import UTF-8 text or Markdown without changing its content, and record a SHA-256 fingerprint.
+2. **Make the links explicit.** Reviewers select claim/evidence passages and record the author, revision and exact source positions.
+3. **Check traceability.** Validate that quotations occur in the source and that declared support links reference valid claims; produce reviewable JSON or Markdown reports.
+4. **Explain changes.** Compare annotation versions and, optionally, use [Tamandua](https://github.com/fredsevmartins/Tamandua) to calculate graph changes and their RDFS consequences.
+
+For example, removing an evidence annotation makes the loss of declared support visible in the review and can invalidate an associated graph inference. The reviewer can inspect the original source, both annotation snapshots and the analytical report instead of reconstructing the change from separate notes.
+
+**Current scope:** manual evidence traceability and optional graph reasoning. Source presence and declared support do not establish truth, causality or scientific validity. Automatic argument extraction, search and document-quality scoring are not implemented.
+
+**Source version: 0.2.0.** Available from `main`; a packaged release has not been published.
 
 [Documentation](docs/README.md) · [Quick start](docs/QUICKSTART.md) · [Tamandua connection](docs/integrations/TAMANDUA.md) · [CLI reference](docs/CLI.md) · [Validation](docs/testing/DOCUMENT_WORKFLOW_RESULTS.md)
 
@@ -28,7 +43,7 @@ python -m pip install .
 armadillo --version
 ```
 
-For a fresh clone of the current development work, see [installation](docs/INSTALLATION.md).
+For a fresh clone from the main branch, see [installation](docs/INSTALLATION.md).
 
 ## Document to review
 
@@ -79,4 +94,4 @@ Linux/Python 3.12 is locally verified. Tamandua process integration requires POS
 
 Original implementation: MIT © 2026 Armadillo contributors. [License](LICENSE) · [Contributing](CONTRIBUTING.md) · [Conduct](CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md).
 
-Technical inspiration: [Brain in the Fish](https://github.com/fabio-rovai/brain-in-the-fish), MIT © 2026 Fabio Rovai. No reference source, datasets, documentation or assets were copied. Tamandua is independently maintained and MIT-licensed. These are personal open-source projects, not Kinetix products.
+Technical inspiration: [Brain in the Fish](https://github.com/fabio-rovai/brain-in-the-fish), MIT © 2026 Fabio Rovai. No reference source, datasets, documentation or assets were copied. Tamandua is independently maintained and MIT-licensed. Armadillo and Tamandua are independently maintained personal open-source projects.

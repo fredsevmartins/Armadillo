@@ -22,7 +22,7 @@ classifiers = [
 
 [project.urls]
 Repository = "https://github.com/fredsevmartins/Armadillo"
-Documentation = "https://github.com/fredsevmartins/Armadillo/tree/feat/reliable-evidence-reports/docs"
+Documentation = "https://github.com/fredsevmartins/Armadillo/tree/main/docs"
 Issues = "https://github.com/fredsevmartins/Armadillo/issues"
 
 [project.optional-dependencies]

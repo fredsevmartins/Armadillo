@@ -48,7 +48,7 @@ Reproduction commands are in the developer guide. The package audit for unchange
 
 ## Delivery boundary
 
-GitHub native Git read access worked for both repositories. API access to GitHub Actions still returned Forbidden, so hosted run outcomes could not be confirmed. The implementation remains a review branch until explicitly merged; package/GitHub release publication requires separate authorization. New-task cloud restoration and browser-rendered diagram output are not claimed.
+GitHub native Git read access worked for both repositories. API access to GitHub Actions still returned Forbidden, so hosted run outcomes could not be confirmed. At the time of these validation runs the implementation was a review branch; see the current README for source publication status. Package/GitHub release publication requires separate authorization. New-task cloud restoration and browser-rendered diagram output are not claimed.
 
 Automatic PDF/argument extraction, semantic scoring, cross-edited-document matching, authenticated collaboration/history and scientific validity assessment remain outside the delivered workflow. Current development is ready for review with those explicit boundaries.
 

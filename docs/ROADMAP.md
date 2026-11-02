@@ -4,7 +4,7 @@
 
 UTF-8 TXT/Markdown preparation, manual span annotation with authors/revisions and latest-edit metadata, source integrity hashes, exact quotation audits, readable reports, snapshot RDF export, same-document comparisons, real optional Tamandua closure/impact plans and explicit checkout connection diagnostics.
 
-Current work is on feat/reliable-evidence-reports. Version 0.2.0 has not been merged/released or published to PyPI. Current execution evidence is in [DOCUMENT_WORKFLOW_RESULTS.md](testing/DOCUMENT_WORKFLOW_RESULTS.md).
+Version 0.2.0 is available as source on main. A packaged release and PyPI publication remain separate delivery steps. Current execution evidence is in [DOCUMENT_WORKFLOW_RESULTS.md](testing/DOCUMENT_WORKFLOW_RESULTS.md).
 
 ## Before release
 

@@ -1,6 +1,16 @@
-# Documentation
+# Armadillo documentation
 
-Armadillo 0.2.0 is an unreleased source-evidence traceability tool. This index points to current instructions; older reports remain historical engineering evidence.
+## The problem this product addresses
+
+Researchers and reviewers need to explain which source passages were used to support a claim, who annotated them and what changed between revisions. When that information lives in disconnected notes, reviews are difficult to reproduce and changes in evidence are easy to overlook.
+
+## How it works
+
+Armadillo preserves an original text/Markdown document, lets reviewers annotate exact claim/evidence spans, checks quotation presence and declared links, and generates reproducible reports with source context and authorship metadata. Comparing snapshots exposes changes in annotations and declared support. Optional integration with the independently installed Tamandua CLI adds actual RDF closure, graph-impact calculations and explanation paths.
+
+The result is an inspectable source-to-annotation-to-report workflow. It does not replace expert review or prove scientific truth. Current capabilities require manual annotation; automated extraction, search and grading remain outside the implemented scope.
+
+Version 0.2.0 is available as source on main, without a published package release. This index points to current instructions; older reports remain historical engineering evidence.
 
 ## Use Armadillo
 
