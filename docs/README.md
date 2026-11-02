@@ -1,5 +1,9 @@
 # Armadillo documentation
 
+![Armadillo product artwork featuring an armadillo scientist in the Brazilian Cerrado](../assets/armadillo-banner.png)
+
+*Product artwork. The implemented workflow and its limitations are described below.*
+
 ## The problem this product addresses
 
 Researchers and reviewers need to explain which source passages were used to support a claim, who annotated them and what changed between revisions. When that information lives in disconnected notes, reviews are difficult to reproduce and changes in evidence are easy to overlook.

@@ -2,6 +2,10 @@
 
 Armadillo helps researchers and reviewers trace document claims back to the exact passages presented as evidence, preserve that review trail and understand what changes when annotations are revised.
 
+![Armadillo product artwork featuring an armadillo scientist in the Brazilian Cerrado](assets/armadillo-banner.png)
+
+*Product artwork. Current functionality focuses on manual evidence traceability and optional Tamandua graph reasoning.*
+
 ## The problem
 
 Evidence reviews become difficult to audit when claims, quotations and reviewer decisions are scattered across documents and notes. A reader may see a conclusion without knowing which passage was cited, who annotated it or whether its supporting evidence changed during revision. Repeating that review becomes time-consuming and inconsistent.
