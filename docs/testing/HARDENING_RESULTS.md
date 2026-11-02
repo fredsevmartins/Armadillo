@@ -1,5 +1,7 @@
 # Reliability and report implementation results
 
+First-phase evidence. Current cumulative functionality and counts are in [COMPARISON_RESULTS.md](COMPARISON_RESULTS.md).
+
 Date: 2026-11-02. Branch: feat/reliable-evidence-reports. Baseline: fc8a966b7f71bb9d5aef6c0dcb5db884549d3b11. This is an unreleased continuation of the evidence-traceability MVP, not automated scientific evaluation.
 
 ## Implemented
@@ -50,4 +52,4 @@ Current 500-node synthetic benchmark, Python 3.12.14 on Linux x86_64, one warmup
 
 Implementation remains on feat/reliable-evidence-reports for review; this report does not claim a merge or release. CI definitions are improved but hosted results require actual GitHub evidence. The previous API attempts returned Forbidden; local tests are not remote CI confirmation. Mermaid source rendering, native Windows integration, Rust advisory scanning, cross-Python hosted execution and external distribution publication remain unverified.
 
-No LLM extraction, PDF ingestion, grading, truth validation, stable cross-version graph identity or Tamandua impact-analysis workflow is added in this phase. Those are separate product work. Source-present labels and declared support remain deliberately transparent. Review and explicitly approve release publication separately.
+This first hardening phase does not add LLM extraction, PDF ingestion, grading or truth validation. Subsequent same-document stable identities and actual impact planning are documented in [COMPARISON_RESULTS.md](COMPARISON_RESULTS.md). Those are separate product work. Source-present labels and declared support remain deliberately transparent. Review and explicitly approve release publication separately.

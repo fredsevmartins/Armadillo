@@ -1,0 +1,17 @@
+sequenceDiagram
+  participant U as User
+  participant A as Armadillo compare
+  participant T as Tamandua CLI
+  U->>A: Baseline and proposed annotations
+  A->>A: Validate same document and audit both
+  A->>A: Compare node and declared support changes
+  opt Explicit Tamandua integration
+    A->>A: Export document-scoped stable identities
+    A->>T: Version and reason baseline
+    A->>T: Version and reason proposed
+    A->>A: Build canonical add/remove delta
+    A->>T: Plan baseline with changes
+    T-->>A: Proposed graph, impact and explanations
+    A->>A: Validate sets, counts, hashes and roots
+  end
+  A-->>U: Deterministic JSON or Markdown

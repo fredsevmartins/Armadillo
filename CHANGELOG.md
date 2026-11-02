@@ -11,3 +11,5 @@ Original manual source-evidence auditing, deterministic provenance, RDF export a
 - Publish new reports atomically; remove unpublished files on write errors and preserve collisions.
 - Reject numeric exponent overflow. Add exact source locations/context and escaped Markdown reports.
 - Bundle offline input/report/adapter schemas, representative fixtures and regression tests; define clean wheel/artifact CI checks.
+
+- Add same-document compare command, declared source-support changes, optional real Tamandua impact plans, stable document-scoped IDs and comparison schema 1.0. Existing snapshot export identity is retained.

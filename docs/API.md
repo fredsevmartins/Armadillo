@@ -9,3 +9,5 @@ See [contract](integrations/INTERFACE_CONTRACT.md). Callers provide JSON-like pl
 ## Report/adapter contract 1.1
 
 `armadillo.contracts.load_schema(name)` loads input/report/adapter JSON Schemas offline. `armadillo.output.write_new(path,text)` publishes complete files with exclusive atomic hard-link creation. `armadillo.output.markdown(report)` renders escaped, human-readable findings. Python callers must preserve the required report fields. Both resource/output schemas are bundled as package data.
+
+`armadillo.compare.compare(before, after, binary=None, timeout=30)` returns comparison 1.0 for the exact same document; optional impact uses the pinned CLI. `armadillo.rdf.export_nt(data, identity="snapshot")` retains existing behavior; identity="document" is explicitly used by comparisons. Read integrations/ANNOTATION_COMPARISON.md before using document-scoped IDs.

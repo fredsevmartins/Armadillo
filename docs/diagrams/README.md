@@ -96,3 +96,7 @@ flowchart LR
   T --> A
   D[Documentation checks] --> Docs[Local links and diagram sources]
 ```
+
+## Annotation comparison
+
+[Editable source](comparison.mmd) shows standalone diffs and the optional actual Tamandua impact exchange. It is implemented; no scientific-entailment claim is implied.

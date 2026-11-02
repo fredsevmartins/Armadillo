@@ -62,3 +62,13 @@ Manual UTF-8 JSON only, bounded to 1 MiB and 1,000 nodes. No PDF reader, LLM ext
 MIT © 2026 Armadillo contributors; [license](LICENSE), [contributing](CONTRIBUTING.md), [conduct](CODE_OF_CONDUCT.md), [security](SECURITY.md).
 
 Technical inspiration: [Brain in the Fish](https://github.com/fabio-rovai/brain-in-the-fish), MIT © 2026 Fabio Rovai. No reference source, datasets, documentation or assets were copied. [Tamandua](https://github.com/fredsevmartins/Tamandua), MIT © 2026 Tamandua contributors, is separately installed and optional. These are independent personal projects, not Kinetix products.
+
+## Compare annotations and trace graph impact
+
+```bash
+armadillo compare examples/tamandua_integration/before.json --against examples/tamandua_integration/after.json --format markdown
+# Optional: install .[tamandua] and build the compatible engine first
+armadillo compare examples/tamandua_integration/before.json --against examples/tamandua_integration/after.json --tamandua ../Tamandua/target/debug/tamandua --format markdown
+```
+
+Compare node additions/removals/modifications and lost/gained declared source supporters without changing inputs. Optional Tamandua impact uses stable identities within the same unchanged document and verifies the proposed graph and impact sets. Changed document text is explicitly rejected. This does not assess scientific truth or causal evidence. See the [comparison tutorial and contract](docs/integrations/ANNOTATION_COMPARISON.md) and [current test results](docs/testing/COMPARISON_RESULTS.md). Offline schema: `armadillo schema comparison`.
