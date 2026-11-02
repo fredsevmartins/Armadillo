@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "document": "The synthetic sample contains three items. A manual count recorded three items.",
+  "nodes": [
+    {"id": "claim1", "kind": "claim", "quote": "The synthetic sample contains three items.", "supports": []},
+    {"id": "evidence1", "kind": "evidence", "quote": "A manual count recorded three items.", "supports": ["claim1"]}
+  ]
+}

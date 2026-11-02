@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Armadillo evidence input 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "document",
+    "nodes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "document": {
+      "type": "string",
+      "pattern": "\\S"
+    },
+    "nodes": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "quote",
+          "supports"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+          },
+          "kind": {
+            "enum": [
+              "claim",
+              "evidence"
+            ]
+          },
+          "quote": {
+            "type": "string",
+            "pattern": "\\S"
+          },
+          "supports": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "claim"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "supports": {
+                  "maxItems": 0
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
