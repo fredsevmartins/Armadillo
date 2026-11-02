@@ -13,12 +13,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '${{ matrix.python }}'
-      - run: python -m pip install . ruff==0.14.3
+      - run: python -m pip install '.[tamandua]' ruff==0.14.3 jsonschema==4.26.0
       - run: ruff check src tests scripts
       - run: ruff format --check src tests scripts
       - run: python -m unittest discover -s tests -v
       - run: python scripts/check_docs.py
+      - run: python scripts/check_contracts.py
       - run: python -m pip wheel --no-deps . --wheel-dir dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: armadillo-wheel-py${{ matrix.python }}
+          path: dist/*.whl
+      - run: |
+          python -m venv /tmp/armadillo-wheel
+          /tmp/armadillo-wheel/bin/pip install --no-index --no-deps dist/*.whl
+          cd /tmp
+          /tmp/armadillo-wheel/bin/armadillo schema report
+          /tmp/armadillo-wheel/bin/armadillo audit "$GITHUB_WORKSPACE/examples/tamandua_integration/input.json" --format markdown
   tamandua:
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +49,8 @@ jobs:
         working-directory: Tamandua
       - run: cargo +1.90.0 build --locked --bin tamandua -j 4
         working-directory: Tamandua
-      - run: python -m pip install ./Armadillo
+      - run: python -m pip install './Armadillo[tamandua]' jsonschema==4.26.0
       - run: python tests/real_tamandua.py -v
+        working-directory: Armadillo
+      - run: python scripts/check_contracts.py --tamandua ../Tamandua/target/debug/tamandua
         working-directory: Armadillo

@@ -1,0 +1,29 @@
+{
+  "input": {
+    "schema_version": "1.0",
+    "document": "The sample contains three items.",
+    "nodes": [
+      {
+        "id": "c1",
+        "kind": "claim",
+        "quote": "The sample contains three items.",
+        "supports": []
+      },
+      {
+        "id": "e1",
+        "kind": "evidence",
+        "quote": "Fabricated observation.",
+        "supports": [
+          "c1"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "status": "REVIEW_REQUIRED",
+    "unsupported_claims": [
+      "c1"
+    ],
+    "missing_quotes": 1
+  }
+}

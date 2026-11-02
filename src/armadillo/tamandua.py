@@ -1,10 +1,10 @@
 """Optional file/CLI adapter for verified Tamandua 0.1.0."""
 
-import subprocess
 import tempfile
 from pathlib import Path
 
 from .core import AuditError, digest, fields, parse_json
+from .process import run as _run
 
 
 def _triple(triple):
@@ -14,45 +14,53 @@ def _triple(triple):
     return tuple(triple[k] for k in ("subject", "predicate", "object"))
 
 
-def _run(binary, args, timeout):
+def _rdf_set(text):
+    if not text.strip():
+        return set()
     try:
-        # Trusted operator-selected executable, never a shell command.
-        result = subprocess.run(
-            [str(binary), *args],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            timeout=timeout,
-            check=False,
-        )
-    except FileNotFoundError as exc:
+        from rdflib import Graph, BNode
+    except ImportError as exc:
         raise AuditError(
-            "Tamandua executable not found; install it or omit --tamandua"
+            "Install optional integration dependencies: pip install 'armadillo-evidence[tamandua]'"
         ) from exc
-    except subprocess.TimeoutExpired as exc:
+    try:
+
+        class Labels(dict):
+            def get(self, key, default=None):
+                return BNode(key)
+
+        return set(Graph().parse(data=text, format="nt", bnode_context=Labels()))
+    except Exception as exc:
+        raise AuditError("Invalid N-Triples input/response: " + str(exc)[:500]) from exc
+
+
+def preflight(nt):
+    if not isinstance(nt, str):
+        raise AuditError("RDF input must be text")
+    try:
+        size = len(nt.encode("utf-8"))
+    except UnicodeError as exc:
+        raise AuditError("RDF input must contain valid Unicode") from exc
+    if size > 2 * 1024 * 1024:
         raise AuditError(
-            "Tamandua timed out; standalone audit remains available"
-        ) from exc
-    except (OSError, UnicodeError) as exc:
-        raise AuditError("Cannot execute Tamandua") from exc
-    if result.returncode:
-        raise AuditError(
-            "Tamandua command failed (exit " + str(result.returncode) + ")"
+            f"Integration RDF exceeds 2 MiB ({size} bytes); reduce links or run without --tamandua"
         )
-    if len(result.stdout.encode("utf-8")) > 16 * 1024 * 1024:
-        raise AuditError("Tamandua response exceeds 16 MiB")
-    return result.stdout
+    triples = _rdf_set(nt)
+    if len(triples) > 20000:
+        raise AuditError(
+            "Integration exceeds 20000 asserted triples; reduce links or run standalone"
+        )
+    return triples
 
 
 def reason(nt, binary, timeout=30):
-    if not isinstance(nt, str) or len(nt.encode("utf-8")) > 2 * 1024 * 1024:
-        raise AuditError("RDF input must be text of at most 2 MiB")
     if (
         isinstance(timeout, bool)
         or not isinstance(timeout, (int, float))
         or not 0 < timeout <= 300
     ):
         raise AuditError("timeout must be in (0, 300] seconds")
+    submitted = preflight(nt)
     version = _run(binary, ["--version"], timeout).strip()
     if version != "dominox 0.1.0" and version != "tamandua 0.1.0":
         raise AuditError("Unsupported Tamandua version; expected 0.1.0")
@@ -74,26 +82,56 @@ def reason(nt, binary, timeout=30):
             _triple(triple)
     if not isinstance(analytical["derivations"], list):
         raise AuditError("Incompatible Tamandua provenance")
+    sets = {}
+    for key in ("asserted", "inferred"):
+        raw = [_triple(t) for t in analytical[key]]
+        if len(raw) != len(set(raw)):
+            raise AuditError("Duplicate triples in Tamandua " + key)
+        text = "\n".join(" ".join(t) + " ." for t in raw)
+        parsed = _rdf_set(text)
+        if len(parsed) != len(raw):
+            raise AuditError("Noncanonical or duplicate RDF terms in Tamandua response")
+        sets[key] = parsed
+    if sets["asserted"] != submitted:
+        raise AuditError("Tamandua assertions do not match submitted graph")
+    if sets["asserted"] & sets["inferred"]:
+        raise AuditError("Tamandua asserted and inferred sets overlap")
+    if len(sets["asserted"]) + len(sets["inferred"]) > 20000:
+        raise AuditError("Tamandua closure exceeds 20000 triples")
     known = {_triple(t) for key in ("asserted", "inferred") for t in analytical[key]}
+    conclusions = set()
     for derivation in analytical["derivations"]:
         fields(derivation, ("conclusion", "alternatives"))
-        if _triple(derivation["conclusion"]) not in known:
+        conclusion = _triple(derivation["conclusion"])
+        if conclusion in conclusions:
+            raise AuditError("Duplicate provenance conclusion")
+        conclusions.add(conclusion)
+        if conclusion not in known:
             raise AuditError("Provenance conclusion absent from closure")
         alternatives = derivation["alternatives"]
         if not isinstance(alternatives, list) or not alternatives:
             raise AuditError("Invalid provenance alternatives")
         for alternative in alternatives:
             fields(alternative, ("rule", "premises"))
-            if not isinstance(alternative["rule"], str) or not alternative["rule"]:
+            if alternative["rule"] not in (
+                "subclass-transitivity",
+                "subproperty-transitivity",
+                "class-membership",
+                "property-propagation",
+                "domain",
+                "range",
+            ):
                 raise AuditError("Invalid provenance rule")
             premises = alternative["premises"]
             if not isinstance(premises, list) or len(premises) != 2:
                 raise AuditError("Invalid provenance premises")
             if any(_triple(p) not in known for p in premises):
                 raise AuditError("Provenance premise absent from closure")
+    if not {_triple(t) for t in analytical["inferred"]} <= conclusions:
+        raise AuditError("Missing provenance for inferred triples")
     # Exclude runtime timestamp from deterministic analytical output.
     return {
-        "contract_version": "1.0",
+        "contract_version": "1.1",
         "engine": version,
         "rdf_sha256": digest(nt),
         "analytical": analytical,

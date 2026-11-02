@@ -1,0 +1,27 @@
+{
+  "input": {
+    "schema_version": "1.0",
+    "document": "The treatment works. The experiment found no treatment benefit.",
+    "nodes": [
+      {
+        "id": "c1",
+        "kind": "claim",
+        "quote": "The treatment works.",
+        "supports": []
+      },
+      {
+        "id": "e1",
+        "kind": "evidence",
+        "quote": "The experiment found no treatment benefit.",
+        "supports": [
+          "c1"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "status": "SOURCE_LINKED",
+    "unsupported_claims": [],
+    "missing_quotes": 0
+  }
+}

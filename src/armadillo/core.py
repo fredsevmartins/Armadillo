@@ -5,6 +5,8 @@ import json
 import os
 import re
 import stat
+import math
+from bisect import bisect_right
 
 from . import __version__
 
@@ -20,7 +22,7 @@ class AuditError(ValueError):
 def read_file(path):
     """Read bounded regular UTF-8 files; never interpret paths from JSON."""
     try:
-        descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
         with os.fdopen(descriptor, "rb") as stream:
             if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
                 raise AuditError("Input must be a regular file")
@@ -41,11 +43,19 @@ def _pairs(pairs):
     return result
 
 
+def _finite_float(text):
+    value = float(text)
+    if not math.isfinite(value):
+        raise AuditError("Non-finite JSON number")
+    return value
+
+
 def parse_json(text):
     try:
         return json.loads(
             text,
             object_pairs_hook=_pairs,
+            parse_float=_finite_float,
             parse_constant=lambda _: (_ for _ in ()).throw(
                 AuditError("Non-finite JSON number")
             ),
@@ -120,6 +130,7 @@ def digest(text):
 def audit(data):
     validate(data)
     document = data["document"]
+    line_starts = [0] + [i + 1 for i, char in enumerate(document) if char == "\n"]
     verified = {n["id"]: n["quote"] in document for n in data["nodes"]}
     supporters = {n["id"]: [] for n in data["nodes"] if n["kind"] == "claim"}
     for node in data["nodes"]:
@@ -132,14 +143,36 @@ def audit(data):
             "id": node["id"],
             "kind": node["kind"],
             "quote_found": verified[node["id"]],
+            "quote": node["quote"],
         }
+        occurrences = []
+        cursor = 0
+        while len(occurrences) < 10:
+            start = document.find(node["quote"], cursor)
+            if start < 0:
+                break
+            line = bisect_right(line_starts, start)
+            occurrences.append(
+                {
+                    "start": start,
+                    "end": start + len(node["quote"]),
+                    "line": line,
+                    "column": start - line_starts[line - 1] + 1,
+                    "context": document[max(0, start - 40) : start + 120],
+                }
+            )
+            cursor = start + 1
+        finding["occurrences"] = occurrences
+        finding["occurrences_truncated"] = (
+            bool(occurrences) and document.find(node["quote"], cursor) >= 0
+        )
         if node["kind"] == "claim":
             finding["source_present_supporters"] = sorted(supporters[node["id"]])
         findings.append(finding)
     missing = sum(not found for found in verified.values())
     unsupported = sorted(k for k, v in supporters.items() if not v)
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "software_version": __version__,
         "input_sha256": digest(canonical(data)),
         "document_sha256": digest(document),

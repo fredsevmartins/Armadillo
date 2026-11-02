@@ -1,5 +1,5 @@
-import subprocess
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from armadillo.core import AuditError
@@ -7,28 +7,39 @@ from armadillo.tamandua import reason
 
 
 def completed(text, code=0):
-    return subprocess.CompletedProcess([], code, text, "")
+    return text
 
 
 class AdapterContractTests(unittest.TestCase):
     """Protocol failure tests with mocks; real engine tests are separate."""
 
     def test_version_mismatch(self):
-        with patch("subprocess.run", return_value=completed("tamandua 9.0.0")):
+        with patch("armadillo.tamandua._run", return_value=completed("tamandua 9.0.0")):
             with self.assertRaisesRegex(AuditError, "version"):
                 reason("", "tamandua")
 
-    def test_timeout(self):
-        with patch(
-            "subprocess.run", side_effect=subprocess.TimeoutExpired("tamandua", 1)
-        ):
-            with self.assertRaisesRegex(AuditError, "timed out"):
+    def _failure_cleans_graph(self, message):
+        paths = []
+
+        def failing_run(binary, args, timeout):
+            if args == ["--version"]:
+                return "tamandua 0.1.0"
+            graph = Path(args[1])
+            self.assertTrue(graph.is_file())
+            paths.append(graph)
+            raise AuditError(message)
+
+        with patch("armadillo.tamandua._run", side_effect=failing_run):
+            with self.assertRaisesRegex(AuditError, message):
                 reason("", "tamandua")
+        self.assertEqual(len(paths), 1)
+        self.assertFalse(paths[0].parent.exists())
+
+    def test_timeout(self):
+        self._failure_cleans_graph("Tamandua timed out")
 
     def test_runtime_error(self):
-        with patch("subprocess.run", return_value=completed("", 1)):
-            with self.assertRaisesRegex(AuditError, "command failed"):
-                reason("", "tamandua")
+        self._failure_cleans_graph("Tamandua command failed")
 
     def test_invalid_responses(self):
         cases = [
@@ -42,7 +53,7 @@ class AdapterContractTests(unittest.TestCase):
         for response in cases:
             with self.subTest(response=response):
                 with patch(
-                    "subprocess.run",
+                    "armadillo.tamandua._run",
                     side_effect=[completed("tamandua 0.1.0"), completed(response)],
                 ):
                     with self.assertRaises(AuditError):

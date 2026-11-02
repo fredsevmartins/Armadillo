@@ -12,8 +12,14 @@ authors = [{name = "Armadillo contributors"}]
 readme = "README.md"
 dependencies = []
 
+[project.optional-dependencies]
+tamandua = ["rdflib==7.1.4", "pyparsing==3.3.2"]
+
 [project.scripts]
 armadillo = "armadillo.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+armadillo = ["schemas/*.json"]

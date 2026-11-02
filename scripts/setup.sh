@@ -2,8 +2,8 @@
 set -euo pipefail
 cd /workspace/Armadillo
 python3 -m venv --system-site-packages .venv
-.venv/bin/python -m pip install setuptools==84.0.0 wheel==0.48.0 ruff==0.14.3
-.venv/bin/python -m pip install --no-build-isolation --no-deps -e .
+.venv/bin/python -m pip install setuptools==84.0.0 wheel==0.48.0 ruff==0.14.3 jsonschema==4.26.0
+.venv/bin/python -m pip install --no-build-isolation -e '.[tamandua]'
 export CARGO_HOME=/workspace/.armadillo-tools/cargo
 export RUSTUP_HOME=/workspace/.armadillo-tools/rustup
 export PATH="$CARGO_HOME/bin:$PATH"
@@ -24,3 +24,5 @@ cd /workspace/Armadillo
 .venv/bin/ruff check src tests scripts
 .venv/bin/ruff format --check src tests scripts
 .venv/bin/python scripts/check_docs.py
+
+.venv/bin/python scripts/check_contracts.py --tamandua /workspace/Tamandua/target/debug/tamandua

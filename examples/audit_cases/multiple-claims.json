@@ -1,0 +1,35 @@
+{
+  "input": {
+    "schema_version": "1.0",
+    "document": "Cats are mammals. Taxonomy classifies cats as mammals. Birds fly.",
+    "nodes": [
+      {
+        "id": "c1",
+        "kind": "claim",
+        "quote": "Cats are mammals.",
+        "supports": []
+      },
+      {
+        "id": "c2",
+        "kind": "claim",
+        "quote": "Birds fly.",
+        "supports": []
+      },
+      {
+        "id": "e1",
+        "kind": "evidence",
+        "quote": "Taxonomy classifies cats as mammals.",
+        "supports": [
+          "c1"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "status": "REVIEW_REQUIRED",
+    "unsupported_claims": [
+      "c2"
+    ],
+    "missing_quotes": 0
+  }
+}

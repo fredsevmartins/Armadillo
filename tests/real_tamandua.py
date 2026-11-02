@@ -16,6 +16,16 @@ BINARY = os.environ.get(
 
 
 class RealTamanduaTests(unittest.TestCase):
+    def test_representative_graphs_and_markdown_cli(self):
+        for path in (ROOT / "examples/audit_cases").glob("*.json"):
+            case = json.loads(path.read_text())
+            with self.subTest(case=path.name):
+                result = reason(export_nt(case["input"]), BINARY)
+                self.assertTrue(result["analytical"]["asserted"])
+                self.assertEqual(
+                    audit(case["input"])["status"], case["expected"]["status"]
+                )
+
     def setUp(self):
         self.data = json.loads(
             (ROOT / "examples/tamandua_integration/input.json").read_text()
@@ -37,8 +47,20 @@ class RealTamanduaTests(unittest.TestCase):
         self.assertEqual(reason(nt, BINARY), reason(nt, BINARY))
 
     def test_actual_invalid_rdf(self):
-        with self.assertRaisesRegex(AuditError, "command failed"):
+        with self.assertRaisesRegex(AuditError, "Invalid N-Triples"):
             reason("this is not RDF", BINARY)
+        from armadillo.process import run
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid.nt"
+            path.write_text("this is not RDF")
+            with self.assertRaisesRegex(AuditError, "line 1"):
+                run(BINARY, ["reason", str(path)], 30)
+
+    def test_blank_node_exchange(self):
+        result = reason('_:a <urn:p> "source" .\n', BINARY)
+        self.assertEqual(len(result["analytical"]["asserted"]), 1)
 
     def test_unicode_control_and_escaped_literal_roundtrip(self):
         text = '🐟 " \\b \n \t \x08 \x0c'
@@ -46,6 +68,14 @@ class RealTamanduaTests(unittest.TestCase):
         self.data["document"] += text
         result = reason(export_nt(self.data), BINARY)
         self.assertEqual(len(result["analytical"]["asserted"]), 9)
+        from rdflib import Graph, Literal
+
+        returned = "\n".join(
+            " ".join(t[k] for k in ("subject", "predicate", "object")) + " ."
+            for t in result["analytical"]["asserted"]
+        )
+        graph = Graph().parse(data=returned, format="nt")
+        self.assertIn(Literal(text), set(graph.objects()))
 
     def test_integrated_cli(self):
         import subprocess

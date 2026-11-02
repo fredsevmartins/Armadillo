@@ -1,0 +1,19 @@
+{
+  "input": {
+    "schema_version": "1.0",
+    "document": "α\n🐟 fish.\n🐟 fish.",
+    "nodes": [
+      {
+        "id": "e1",
+        "kind": "evidence",
+        "quote": "🐟 fish.",
+        "supports": []
+      }
+    ]
+  },
+  "expected": {
+    "status": "SOURCE_LINKED",
+    "unsupported_claims": [],
+    "missing_quotes": 0
+  }
+}
