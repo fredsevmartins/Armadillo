@@ -16,6 +16,39 @@ BINARY = os.environ.get(
 
 
 class RealTamanduaTests(unittest.TestCase):
+    def test_actual_removal_impact_and_repeatability(self):
+        import copy
+        from armadillo.compare import compare
+
+        before = json.loads(
+            (ROOT / "examples/tamandua_integration/input.json").read_text()
+        )
+        after = copy.deepcopy(before)
+        after["nodes"] = after["nodes"][:1]
+        report = compare(before, after, BINARY)
+        impact = report["tamandua_impact"]["analytical"]["impact"]
+        self.assertEqual(len(impact["removed_assertions"]), 4)
+        self.assertEqual(len(impact["invalidated_inferences"]), 1)
+        self.assertEqual(len(impact["unchanged_inferences"]), 1)
+        self.assertEqual(report, compare(before, after, BINARY))
+
+    def test_actual_addition_and_noop_impact(self):
+        import copy
+        from armadillo.compare import compare
+
+        full = json.loads(
+            (ROOT / "examples/tamandua_integration/input.json").read_text()
+        )
+        partial = copy.deepcopy(full)
+        partial["nodes"] = partial["nodes"][:1]
+        addition = compare(partial, full, BINARY)["tamandua_impact"]["analytical"][
+            "impact"
+        ]
+        self.assertEqual(len(addition["added_assertions"]), 4)
+        self.assertEqual(len(addition["new_inferences"]), 1)
+        noop = compare(full, full, BINARY)["tamandua_impact"]["analytical"]["impact"]
+        self.assertEqual(noop["affected_relationships"], [])
+
     def test_representative_graphs_and_markdown_cli(self):
         for path in (ROOT / "examples/audit_cases").glob("*.json"):
             case = json.loads(path.read_text())

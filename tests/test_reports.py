@@ -32,7 +32,7 @@ class ReportTests(unittest.TestCase):
                 self.assertEqual(before, json.dumps(case["input"], sort_keys=True))
 
     def test_offline_schemas_match_published_sources(self):
-        for name in ("input", "report", "adapter"):
+        for name in ("input", "report", "adapter", "comparison"):
             self.assertEqual(
                 load_schema(name),
                 json.loads((ROOT / "schemas" / (name + ".schema.json")).read_text()),

@@ -11,9 +11,17 @@ for path in [root / "README.md", *root.glob("docs/**/*.md")]:
             continue
         if not (path.parent / target.split("#")[0]).exists():
             errors.append(f"{path.relative_to(root)}: {target}")
-for name in ("system", "integration", "data-flow", "workflow", "errors", "testing"):
+for name in (
+    "system",
+    "integration",
+    "data-flow",
+    "workflow",
+    "errors",
+    "testing",
+    "comparison",
+):
     if not (root / "docs/diagrams" / (name + ".mmd")).is_file():
         errors.append("Missing diagram: " + name)
 if errors:
     raise SystemExit("\n".join(errors))
-print("Documentation links and six diagram sources: PASS")
+print("Documentation links and seven diagram sources: PASS")

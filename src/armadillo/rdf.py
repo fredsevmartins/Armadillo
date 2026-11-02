@@ -7,10 +7,15 @@ TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 SUBCLASS = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 
 
-def export_nt(data):
+def export_nt(data, identity="snapshot"):
     validate(data)
     report = audit(data)
-    root = "urn:sha256:" + report["input_sha256"] + ":"
+    if identity not in ("snapshot", "document"):
+        from .core import AuditError
+
+        raise AuditError("RDF identity must be snapshot or document")
+    key = "input_sha256" if identity == "snapshot" else "document_sha256"
+    root = "urn:sha256:" + report[key] + ":"
     rows = []
 
     def iri(s, p, o):
