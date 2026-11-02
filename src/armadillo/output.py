@@ -48,6 +48,12 @@ def markdown(report):
         "",
         "Presence and declared links only; this report does not establish truth or entailment.",
     ]
+    if "provenance" in report:
+        lines += ["", "## Source provenance"]
+        for key, value in report["provenance"].items():
+            lines += ["", key + ": " + _code(value)]
+    if "last_edit" in report:
+        lines += ["", "Last annotation edit: " + _code(report["last_edit"])]
     for finding in report["findings"]:
         lines += [
             "",
@@ -59,6 +65,8 @@ def markdown(report):
             "",
             "Quote found: " + str(finding["quote_found"]),
         ]
+        if "annotation" in finding:
+            lines += ["", "Annotation: " + _code(finding["annotation"])]
         if "source_present_supporters" in finding:
             lines += [
                 "",

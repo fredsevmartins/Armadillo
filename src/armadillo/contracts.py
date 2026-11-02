@@ -7,8 +7,10 @@ from .core import AuditError
 
 
 def load_schema(name):
-    if name not in ("input", "report", "adapter", "comparison"):
-        raise AuditError("Schema name must be input, report, adapter or comparison")
+    if name not in ("input", "report", "adapter", "comparison", "connection"):
+        raise AuditError(
+            "Schema name must be input, report, adapter, comparison or connection"
+        )
     return json.loads(
         files("armadillo")
         .joinpath("schemas", name + ".schema.json")

@@ -4,13 +4,26 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "armadillo-evidence"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reproducible source-evidence audits with optional Tamandua RDF reasoning"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [{name = "Armadillo contributors"}]
 readme = "README.md"
 dependencies = []
+keywords = ["evidence", "provenance", "rdf", "tamandua", "reproducibility"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Repository = "https://github.com/fredsevmartins/Armadillo"
+Documentation = "https://github.com/fredsevmartins/Armadillo/tree/feat/reliable-evidence-reports/docs"
+Issues = "https://github.com/fredsevmartins/Armadillo/issues"
 
 [project.optional-dependencies]
 tamandua = ["rdflib==7.1.4", "pyparsing==3.3.2"]

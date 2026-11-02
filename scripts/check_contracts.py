@@ -11,13 +11,16 @@ from armadillo.core import audit
 from armadillo.compare import compare
 from armadillo.rdf import export_nt
 from armadillo.tamandua import reason
+from armadillo.documents import prepare, annotate
+from armadillo.connection import doctor
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--tamandua")
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
 schemas = {
-    name: load_schema(name) for name in ("input", "report", "adapter", "comparison")
+    name: load_schema(name)
+    for name in ("input", "report", "adapter", "comparison", "connection")
 }
 for schema in schemas.values():
     Draft202012Validator.check_schema(schema)
@@ -26,6 +29,12 @@ inputs += [
     json.loads(path.read_text())["input"]
     for path in (root / "examples/audit_cases").glob("*.json")
 ]
+prepared = prepare(root / "examples/document_workflow/source.txt", "synthetic-example")
+claims = annotate(prepared, "claim1", "reviewer-a", "claim", 0, 42)
+full = annotate(claims, "evidence1", "reviewer-b", "evidence", 43, 79, ["claim1"])
+inputs += [prepared, claims, full]
+if args.tamandua:
+    Draft202012Validator(schemas["connection"]).validate(doctor(binary=args.tamandua))
 for data in inputs:
     Draft202012Validator(schemas["input"]).validate(data)
     report = audit(data)
@@ -36,6 +45,6 @@ for data in inputs:
     comparison = compare(data, data, args.tamandua)
     Draft202012Validator(schemas["comparison"]).validate(comparison)
 print(
-    f"PASS: 4 schemas and {len(inputs)} representative input/report/comparison workflows; real adapter="
+    f"PASS: 5 schemas and {len(inputs)} representative input/report/comparison workflows; real adapter="
     + str(bool(args.tamandua))
 )

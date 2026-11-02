@@ -81,16 +81,64 @@ def _text(value, label):
 
 
 def validate(data):
-    fields(data, ("schema_version", "document", "nodes"))
-    if data["schema_version"] != "1.0":
-        raise AuditError("Unsupported input schema_version; expected 1.0")
+    fields(data, ("schema_version", "document", "nodes"), ("provenance", "last_edit"))
+    version = data["schema_version"]
+    if version not in ("1.0", "1.1"):
+        raise AuditError("Unsupported input schema_version; expected 1.0 or 1.1")
+    if version == "1.0" and ("provenance" in data or "last_edit" in data):
+        raise AuditError("provenance and edit metadata require input schema 1.1")
     _text(data["document"], "document")
+    if "last_edit" in data:
+        edit = data["last_edit"]
+        fields(edit, ("author", "action", "node_id"), ("revision",))
+        for key, value in edit.items():
+            _text(value, "last_edit." + key)
+        if edit["action"] not in ("add", "replace", "delete") or not ID.fullmatch(
+            edit["node_id"]
+        ):
+            raise AuditError("Invalid annotation edit metadata")
+    if "provenance" in data:
+        provenance = data["provenance"]
+        fields(
+            provenance,
+            ("source_name", "source_format", "source_sha256"),
+            ("document_id", "title"),
+        )
+        for key, value in provenance.items():
+            _text(value, "provenance." + key)
+        if provenance["source_format"] not in ("txt", "md"):
+            raise AuditError("source_format must be txt or md")
+        if provenance["source_sha256"] != digest(data["document"]):
+            raise AuditError(
+                "Source hash does not match document; do not edit imported text silently"
+            )
     nodes = data["nodes"]
     if not isinstance(nodes, list) or len(nodes) > MAX_NODES:
         raise AuditError("nodes must be an array of at most 1000 entries")
     ids = set()
     for node in nodes:
-        fields(node, ("id", "kind", "quote", "supports"))
+        fields(
+            node,
+            ("id", "kind", "quote", "supports"),
+            ("annotation",) if version == "1.1" else (),
+        )
+        if "annotation" in node:
+            annotation = node["annotation"]
+            fields(annotation, ("author",), ("revision", "start", "end"))
+            for key in ("author", "revision"):
+                if key in annotation:
+                    _text(annotation[key], "annotation." + key)
+            if "start" in annotation or "end" in annotation:
+                start, end = annotation.get("start"), annotation.get("end")
+                if (
+                    type(start) is not int
+                    or type(end) is not int
+                    or not 0 <= start < end <= len(data["document"])
+                    or data["document"][start:end] != node["quote"]
+                ):
+                    raise AuditError(
+                        "Annotation span must exactly identify the quoted source text"
+                    )
         if not isinstance(node["id"], str) or not ID.fullmatch(node["id"]):
             raise AuditError("Invalid node id")
         if node["id"] in ids:
@@ -145,6 +193,8 @@ def audit(data):
             "quote_found": verified[node["id"]],
             "quote": node["quote"],
         }
+        if "annotation" in node:
+            finding["annotation"] = dict(node["annotation"])
         occurrences = []
         cursor = 0
         while len(occurrences) < 10:
@@ -171,8 +221,8 @@ def audit(data):
         findings.append(finding)
     missing = sum(not found for found in verified.values())
     unsupported = sorted(k for k, v in supporters.items() if not v)
-    return {
-        "schema_version": "1.1",
+    report = {
+        "schema_version": "1.2",
         "software_version": __version__,
         "input_sha256": digest(canonical(data)),
         "document_sha256": digest(document),
@@ -188,3 +238,8 @@ def audit(data):
         "findings": findings,
         "limitations": "Exact substring presence and user-supplied links only; no truth, entailment, scientific validity or quality assessment.",
     }
+    if "provenance" in data:
+        report["provenance"] = dict(data["provenance"])
+    if "last_edit" in data:
+        report["last_edit"] = dict(data["last_edit"])
+    return report

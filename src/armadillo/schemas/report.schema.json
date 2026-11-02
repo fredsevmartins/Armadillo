@@ -14,7 +14,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.1"
+      "const": "1.2"
     },
     "software_version": {
       "type": "string"
@@ -136,6 +136,39 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "annotation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "author"
+            ],
+            "properties": {
+              "author": {
+                "type": "string",
+                "pattern": "\\S"
+              },
+              "revision": {
+                "type": "string",
+                "pattern": "\\S"
+              },
+              "start": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "dependentRequired": {
+              "start": [
+                "end"
+              ],
+              "end": [
+                "start"
+              ]
             }
           }
         }
@@ -321,8 +354,71 @@
           }
         }
       }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_format",
+        "source_sha256"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "source_format": {
+          "enum": [
+            "txt",
+            "md"
+          ]
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "document_id": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "title": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
+    },
+    "last_edit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "author",
+        "action",
+        "node_id"
+      ],
+      "properties": {
+        "author": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "action": {
+          "enum": [
+            "add",
+            "replace",
+            "delete"
+          ]
+        },
+        "node_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Armadillo report schema"
+  "title": "Armadillo report 1.2"
 }

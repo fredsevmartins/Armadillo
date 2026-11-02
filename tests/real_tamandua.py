@@ -16,6 +16,75 @@ BINARY = os.environ.get(
 
 
 class RealTamanduaTests(unittest.TestCase):
+    def test_real_repository_connection(self):
+        from armadillo.connection import doctor, SUPPORTED_COMMIT
+
+        repo = os.environ.get("TAMANDUA_REPOSITORY", str(ROOT.parent / "Tamandua"))
+        result = doctor(repository=repo)
+        self.assertEqual(result["status"], "CONNECTED")
+        self.assertEqual(result["checkout_commit"], SUPPORTED_COMMIT)
+        result = doctor(binary=BINARY)
+        self.assertIsNone(result["checkout_commit"])
+
+    def test_imported_authored_document_with_repository_cli(self):
+        import subprocess
+        import sys
+        import tempfile
+        from armadillo.documents import prepare, annotate
+
+        repo = os.environ.get("TAMANDUA_REPOSITORY", str(ROOT.parent / "Tamandua"))
+        data = prepare(
+            ROOT / "examples/document_workflow/source.txt", "synthetic-example"
+        )
+        claims = annotate(data, "claim1", "reviewer-a", "claim", 0, 42)
+        full = annotate(
+            claims, "evidence1", "reviewer-b", "evidence", 43, 79, ["claim1"]
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "annotated.json"
+            path.write_text(json.dumps(full))
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "armadillo.cli",
+                    "audit",
+                    str(path),
+                    "--tamandua-repo",
+                    repo,
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "SOURCE_LINKED")
+            self.assertEqual(report["provenance"]["document_id"], "synthetic-example")
+            self.assertEqual(len(report["tamandua"]["analytical"]["inferred"]), 2)
+            previous = Path(directory) / "claims.json"
+            previous.write_text(json.dumps(claims))
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "armadillo.cli",
+                    "compare",
+                    str(previous),
+                    "--against",
+                    str(path),
+                    "--tamandua-repo",
+                    repo,
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            impact = json.loads(result.stdout)["tamandua_impact"]["analytical"][
+                "impact"
+            ]
+            self.assertEqual(len(impact["added_assertions"]), 4)
+            self.assertEqual(len(impact["new_inferences"]), 1)
+
     def test_actual_removal_impact_and_repeatability(self):
         import copy
         from armadillo.compare import compare

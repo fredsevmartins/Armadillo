@@ -1,76 +1,254 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Armadillo evidence input 1.0",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "schema_version",
-    "document",
-    "nodes"
-  ],
-  "properties": {
-    "schema_version": {
-      "const": "1.0"
-    },
-    "document": {
-      "type": "string",
-      "pattern": "\\S"
-    },
-    "nodes": {
-      "type": "array",
-      "maxItems": 1000,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "kind",
-          "quote",
-          "supports"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
-          },
-          "kind": {
-            "enum": [
-              "claim",
-              "evidence"
-            ]
-          },
-          "quote": {
-            "type": "string",
-            "pattern": "\\S"
-          },
-          "supports": {
-            "type": "array",
-            "uniqueItems": true,
-            "items": {
-              "type": "string",
-              "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
-            }
-          }
+  "title": "Armadillo input schemas 1.0 and 1.1",
+  "oneOf": [
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Armadillo evidence input 1.0",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "document",
+        "nodes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0"
         },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "kind": {
-                  "const": "claim"
+        "document": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "nodes": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "quote",
+              "supports"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+              },
+              "kind": {
+                "enum": [
+                  "claim",
+                  "evidence"
+                ]
+              },
+              "quote": {
+                "type": "string",
+                "pattern": "\\S"
+              },
+              "supports": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
                 }
               }
             },
-            "then": {
-              "properties": {
-                "supports": {
-                  "maxItems": 0
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "kind": {
+                      "const": "claim"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "supports": {
+                      "maxItems": 0
+                    }
+                  }
                 }
               }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Armadillo evidence input 1.0",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "document",
+        "nodes"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.1"
+        },
+        "document": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "nodes": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "quote",
+              "supports"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+              },
+              "kind": {
+                "enum": [
+                  "claim",
+                  "evidence"
+                ]
+              },
+              "quote": {
+                "type": "string",
+                "pattern": "\\S"
+              },
+              "supports": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+                }
+              },
+              "annotation": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "author"
+                ],
+                "properties": {
+                  "author": {
+                    "type": "string",
+                    "pattern": "\\S"
+                  },
+                  "revision": {
+                    "type": "string",
+                    "pattern": "\\S"
+                  },
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "end": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "dependentRequired": {
+                  "start": [
+                    "end"
+                  ],
+                  "end": [
+                    "start"
+                  ]
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "kind": {
+                      "const": "claim"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "supports": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_name",
+            "source_format",
+            "source_sha256"
+          ],
+          "properties": {
+            "source_name": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "source_format": {
+              "enum": [
+                "txt",
+                "md"
+              ]
+            },
+            "source_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "document_id": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "title": {
+              "type": "string",
+              "pattern": "\\S"
             }
           }
-        ]
+        },
+        "last_edit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "author",
+            "action",
+            "node_id"
+          ],
+          "properties": {
+            "author": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "action": {
+              "enum": [
+                "add",
+                "replace",
+                "delete"
+              ]
+            },
+            "node_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+            },
+            "revision": {
+              "type": "string",
+              "pattern": "\\S"
+            }
+          }
+        }
       }
     }
-  }
+  ]
 }

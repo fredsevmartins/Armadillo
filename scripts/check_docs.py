@@ -19,9 +19,11 @@ for name in (
     "errors",
     "testing",
     "comparison",
+    "documents",
+    "connection",
 ):
     if not (root / "docs/diagrams" / (name + ".mmd")).is_file():
         errors.append("Missing diagram: " + name)
 if errors:
     raise SystemExit("\n".join(errors))
-print("Documentation links and seven diagram sources: PASS")
+print("Documentation links and nine diagram sources: PASS")

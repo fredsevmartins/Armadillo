@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Armadillo connection diagnostic 1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "connection_version",
+    "status",
+    "repository",
+    "checkout_commit",
+    "engine",
+    "check",
+    "limitations"
+  ],
+  "properties": {
+    "connection_version": {
+      "const": "1.0"
+    },
+    "status": {
+      "const": "CONNECTED"
+    },
+    "repository": {
+      "const": "https://github.com/fredsevmartins/Tamandua"
+    },
+    "checkout_commit": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "const": "09970fb8985e6065cc24ff5507a8de161c301ee9"
+        }
+      ]
+    },
+    "engine": {
+      "enum": [
+        "dominox 0.1.0",
+        "tamandua 0.1.0"
+      ]
+    },
+    "check": {
+      "const": "actual-rdfs-subclass-inference"
+    },
+    "limitations": {
+      "type": "string"
+    }
+  }
+}

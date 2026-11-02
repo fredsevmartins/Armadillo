@@ -26,3 +26,5 @@ cd /workspace/Armadillo
 .venv/bin/python scripts/check_docs.py
 
 .venv/bin/python scripts/check_contracts.py --tamandua /workspace/Tamandua/target/debug/tamandua
+.venv/bin/python -m armadillo.cli doctor --tamandua-repo /workspace/Tamandua
+.venv/bin/python scripts/check_quickstart.py --tamandua-repo /workspace/Tamandua

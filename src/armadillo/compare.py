@@ -199,7 +199,7 @@ def compare(before, after, binary=None, timeout=30):
                 }
             )
     report = {
-        "comparison_version": "1.0",
+        "comparison_version": "1.1",
         "document_sha256": b["document_sha256"],
         "baseline_input_sha256": b["input_sha256"],
         "proposed_input_sha256": a["input_sha256"],
