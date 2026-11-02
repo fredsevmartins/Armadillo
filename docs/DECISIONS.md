@@ -8,3 +8,6 @@
 6. Preserve inputs, no silent normalization/fallback, no truth labels; omit volatile timestamps.
 7. Original new code under MIT, reference acknowledged without copying.
 8. Preserve Git history, use a descriptive branch and grouped commits; no merge or release without approval.
+
+9. Use a standard RDFLib parser only in the optional integration extra, rather than an ad hoc N-Triples grammar or another reasoning engine. Pins: RDFLib 7.1.4 and pyparsing 3.3.2. Core audit still uses only the standard library. Compare parsed RDF term sets; this is not graph-isomorphism matching or a semantic-evidence classifier.
+10. Publish new outputs using exclusive hard links, retaining the no-overwrite promise while preventing partial reports on handled I/O failures. Unsupported filesystems fail explicitly.

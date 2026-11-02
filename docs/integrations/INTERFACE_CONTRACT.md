@@ -1,6 +1,6 @@
-# Interface contract 1.0
+# Interface contract 1.1
 
-Interface: armadillo-tamandua-cli. Input/report schema_version "1.0".
+Interface: armadillo-tamandua-cli. Input schema_version "1.0"; report schema_version "1.1".
 
 ## Input
 
@@ -26,4 +26,14 @@ Optional tamandua object: contract_version, engine, rdf_sha256, analytical. Engi
 
 Exit 1, stderr JSON {error:{code:"AUDIT_FAILED",message:"..."}}. Argparse invocation errors use exit 2. Requested integration failure returns no success report; omit --tamandua for standalone. Output creation is exclusive.
 
-Python adapter timeout defaults to 30 seconds per process, configurable in (0,300]. Captured stdout checked against 16 MiB after capture: this does not hard-limit memory or sandbox a malicious executable. Executable is trusted operator configuration. No automatic migrations, downgrade, normalization or retries. Unknown engine versions/closure fields fail until explicitly verified.
+Python adapter timeout defaults to 30 seconds per process, configurable in (0,300]. Capture is bounded during reading: 16 MiB stdout, 64 KiB stderr. Overflow or timeout stops the POSIX process group. This is not a sandbox for a malicious executable. Executable is trusted operator configuration. No automatic migrations, downgrade, normalization or retries. Unknown engine versions/closure fields fail until explicitly verified.
+
+## 1.1 correspondence and source locations
+
+Optional installation requires the pinned RDFLib parser and pyparsing. Parsing is explicitly N-Triples with local data only; no remote JSON-LD/RDF sources are loaded. Parsed assertion sets must equal submitted assertions. Duplicates, assertion/inference overlap, absent inference provenance, unknown rules and invalid references fail. RDF comparison uses parser term equality (including RDFLib typed-literal normalization); the supplied source/annotation JSON and exact-quote findings are never normalized. Blank-node labels are held stable within the submitted exchange, not canonicalized across documents.
+
+Preflight rejects RDF above 2 MiB or 20,000 assertions before launching the executable. Input JSON acceptance does not guarantee generated-RDF/closure acceptance; reduce links or run standalone. Computation/closure limits may still fail. Bounded safe stderr details are retained.
+
+Each finding includes the quote, occurrences (at most ten), and occurrences_truncated. Positions are Unicode codepoints, zero-based [start,end); line/column are one-based, with LF defining line breaks. Overlapping matches are included; context is at most 160 characters per occurrence. No locations are produced for missing quotes. Markdown escapes raw content, including controls/HTML.
+
+Output publication uses a private same-directory temporary file, flush/fsync and an exclusive atomic hard link; collisions never replace data. Unpublished temporary files are removed on handled failures. This requires filesystem hard-link support and is not a guarantee against power-loss/directory durability or an uncatchable process termination.

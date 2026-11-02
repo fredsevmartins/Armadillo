@@ -6,7 +6,7 @@ This independent implementation follows the traceability objective of Brain in t
 
 ## Capabilities
 
-Strict versioned JSON, exact Unicode substring matching, validated evidence links, missing-quote and unsupported-claim findings, SHA-256 provenance, deterministic JSON/N-Triples and optional real Tamandua CLI integration. Output files are created exclusively; existing files are never overwritten.
+Strict versioned JSON, exact Unicode substring matching, validated evidence links, missing-quote and unsupported-claim findings, SHA-256 provenance, deterministic JSON/N-Triples and optional real Tamandua CLI integration. New reports are published atomically without overwriting existing files; write failures remove unpublished temporary files.
 
 SOURCE_LINKED means all supplied quotes occur in the document and each claim has a declared evidence supporter whose quote occurs. It does **not** establish truth, entailment, source independence, quality or scientific validity. Other valid inputs produce REVIEW_REQUIRED.
 
@@ -19,6 +19,7 @@ python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install .
 armadillo audit examples/tamandua_integration/input.json
+armadillo audit examples/tamandua_integration/input.json --format markdown
 armadillo export examples/tamandua_integration/input.json
 ```
 
@@ -29,14 +30,22 @@ Expected audit: SOURCE_LINKED, two nodes, one claim, zero missing quotes. Use --
 JSON → validation → exact-quote audit → report. Optional branch: N-Triples → Tamandua CLI → analytical closure/provenance. Integration never changes the audit verdict.
 
 ```bash
+python -m pip install '.[tamandua]'
 armadillo audit examples/tamandua_integration/input.json --tamandua ../Tamandua/target/debug/tamandua
 ```
 
 Build the pinned compatible binary using the [Tamandua tutorial](docs/TAMANDUA_TUTORIAL.md). No HTTP server is needed. See [architecture](docs/architecture/INTEGRATION_ARCHITECTURE.md), [contract](docs/integrations/INTERFACE_CONTRACT.md) and [diagrams](docs/diagrams/README.md).
 
+## Reports and offline schemas
+
+Report schema 1.1 includes original quotes, up to ten overlapping match locations with bounded context, zero-based Unicode codepoint ranges [start,end), and one-based lines/columns. Occurrences beyond ten are explicitly marked truncated. Use `--format markdown` for a reviewable report and `--output NEW_FILE` to retain it. No claim/evidence labels or source text are transformed.
+
+`armadillo schema input`, `armadillo schema report` and `armadillo schema adapter` export bundled schemas offline. Input schema remains 1.0; the optional adapter contract is now 1.1. See [hardening validation](docs/testing/HARDENING_RESULTS.md) for current evidence.
+
 ## Tests and documentation
 
 ```bash
+python -m pip install '.[tamandua]' ruff==0.14.3
 python -m unittest discover -s tests -v
 python scripts/check_docs.py
 python tests/real_tamandua.py -v

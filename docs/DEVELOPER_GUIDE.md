@@ -9,3 +9,7 @@ Real integration: python tests/real_tamandua.py -v requires actual pinned engine
 New validation must preserve immutability, deterministic hashes and explicit errors. New engine support requires actual contract tests. Matching/serialization changes require schema/contract decisions. No randomness is used.
 
 Each cloud task is already isolated: use existing checkouts; do not create worktrees unless explicitly requested. Keep public docs in English and synthetic fixtures free of private data.
+
+## Reliability implementation
+
+Install `.[tamandua]` for the protocol and real suites. process.py bounds stdout/stderr and reaps the POSIX process group; output.py atomically creates new reports; contracts.py loads offline schemas. test_reliability.py exercises protocol invariants, I/O failure cleanup, resource boundaries, exact locations, escaping and actual process failures. test_reports.py covers CLI report/schema exports and representative fixtures. Run the separate real suite for actual engine correspondence and exact Unicode literal roundtrips.
